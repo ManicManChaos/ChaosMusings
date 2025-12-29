@@ -294,25 +294,36 @@ import { supabase } from "./supabaseClient.js";
         .map((v, i) => (i === 0 ? `<option value="">Select…</option>` : `<option value="${v}">${v}</option>`))
         .join("");
     }
-
-    // Time selects (Roid Boy)
-    const timeSelects = ["arriveTime", "timeSpent", "timeAtGym", "gymArrive", "gymDuration"];
-    const timeOptions = [{ v: "", t: "Select…" }];
-    for (let h = 0; h < 24; h++) {
-      for (let m = 0; m < 60; m += 5) {
-        const hh = String(h).padStart(2, "0");
-        const mm = String(m).padStart(2, "0");
-        const label = `${(h % 12) || 12}:${mm} ${h < 12 ? "AM" : "PM"}`;
-        timeOptions.push({ v: `${hh}:${mm}`, t: label });
-      }
+// 🕒 Gym arrival time (clock times)
+const arrive = $("gymArrive");
+if (arrive && arrive.tagName === "SELECT") {
+  const opts = [`<option value="">Select…</option>`];
+  for (let h = 0; h < 24; h++) {
+    for (let m = 0; m < 60; m += 5) {
+      const hour12 = (h % 12) || 12;
+      const ampm = h < 12 ? "AM" : "PM";
+      const mm = String(m).padStart(2, "0");
+      opts.push(`<option value="${h}:${mm}">${hour12}:${mm} ${ampm}</option>`);
     }
-    timeSelects.forEach((id) => {
-      const el = $(id);
-      if (el && el.tagName === "SELECT") {
-        el.innerHTML = timeOptions.map((o) => `<option value="${o.v}">${o.t}</option>`).join("");
-      }
-    });
+  }
+  arrive.innerHTML = opts.join("");
+}
 
+// ⏱️ Gym duration (length of workout)
+const duration = $("gymDuration");
+if (duration && duration.tagName === "SELECT") {
+  duration.innerHTML = `
+    <option value="">Select…</option>
+    <option>30 minutes</option>
+    <option>45 minutes</option>
+    <option>1 hour</option>
+    <option>1.25 hours</option>
+    <option>1.5 hours</option>
+    <option>2 hours</option>
+    <option>2+ hours</option>
+  `;
+}
+    
     // Weight + bodyfat selects
     ["weight", "gymWeight"].forEach((id) => {
       const el = $(id);
