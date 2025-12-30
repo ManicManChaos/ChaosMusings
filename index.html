@@ -16,45 +16,109 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 
-<body class="cover">
-  <main class="coverWrap" aria-label="Cover">
-    <div class="sigil" role="img" aria-label="Manic Musings of Chaos sigil">
-      <img src="cover-emerald.png" alt="Emerald sigil with gold E" />
-      <div class="sigilTitle">MANIC MUSINGS<br/>OF CHAOS</div>
-    </div>
+<body class="gateBody">
+  <main class="gateWrap" role="main">
+    <section class="gateCard" aria-label="Manic Musings of Chaos – Entrance">
 
-    <button class="enterBtn" id="enterBtn" type="button">
-      <span>Enter, Eugene…</span>
-      <span class="enterSub">tell no lies</span>
-      <div class="spellBurst" aria-hidden="true"><span>✦ ✧ ✦</span><span>✧</span><span>✦</span></div>
-    </button>
+      <!-- STAGE (closed → open) -->
+      <div class="gateStage" id="gateStage">
+        <img
+          id="coverClosed"
+          class="gateImg isOn"
+          src="cover-closed.png"
+          alt="Closed spellbook on a stand"
+          draggable="false"
+        />
+        <img
+          id="coverOpen"
+          class="gateImg"
+          src="cover-stand-open.png"
+          alt="Spellbook opened, pages glowing"
+          draggable="false"
+        />
 
-    <div class="coverFade" aria-hidden="true"></div>
+        <!-- Sigil button (translucent) -->
+        <button class="sigilBtn" id="sigilBtn" type="button" aria-label="Cast the opening spell">
+          <span class="sigilRing" aria-hidden="true"></span>
+          <span class="sigilCore" aria-hidden="true"></span>
+          <span class="sigilText">CAST</span>
+        </button>
+
+        <!-- Sparkle burst container -->
+        <div class="sparkleLayer" id="sparkleLayer" aria-hidden="true"></div>
+
+        <!-- Subtle fade so the “flip” feels cinematic -->
+        <div class="gateFade" id="gateFade" aria-hidden="true"></div>
+      </div>
+
+      <!-- Title plate -->
+      <div class="gateTitlePlate">
+        <div class="gateTitle">MANIC MUSINGS<br/>OF CHAOS</div>
+        <div class="gateSub">enter, eugene… tell no lies</div>
+      </div>
+
+    </section>
   </main>
 
   <script>
-    const v = Date.now();
-   
-    function sparkleBurst(x, y) {
-      for (let i = 0; i < 12; i++) {
-        const s = document.createElement('div');
-        s.className = 'sparkle';
-        s.style.left = (x + (Math.random() * 160 - 80)) + 'px';
-        s.style.top  = (y + (Math.random() * 120 - 60)) + 'px';
-        document.body.appendChild(s);
-        setTimeout(() => s.remove(), 750);
-      }
-    }
+    (function () {
+      const sigilBtn = document.getElementById("sigilBtn");
+      const coverClosed = document.getElementById("coverClosed");
+      const coverOpen = document.getElementById("coverOpen");
+      const sparkleLayer = document.getElementById("sparkleLayer");
+      const gateFade = document.getElementById("gateFade");
 
-    const btn = document.getElementById('enterBtn');
-    btn.addEventListener('click', (e) => {
-      const r = e.currentTarget.getBoundingClientRect();
-      sparkleBurst(r.left + r.width / 2, r.top + r.height / 2);
-      btn.classList.remove('cast');
-      void btn.offsetWidth;
-      btn.classList.add('cast');
-      setTimeout(()=>{ location.href = 'app.html?v=' + v; }, 520);
-    });
+      let busy = false;
+
+      function sparkleBurst() {
+        // big gold-green burst (no external libs)
+        const rect = sigilBtn.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+
+        for (let i = 0; i < 22; i++) {
+          const p = document.createElement("div");
+          p.className = "spark";
+          const angle = Math.random() * Math.PI * 2;
+          const dist = 80 + Math.random() * 160;
+          const x = Math.cos(angle) * dist;
+          const y = Math.sin(angle) * dist;
+
+          p.style.left = cx + "px";
+          p.style.top = cy + "px";
+          p.style.setProperty("--dx", x + "px");
+          p.style.setProperty("--dy", y + "px");
+          p.style.animationDelay = (Math.random() * 0.08) + "s";
+
+          sparkleLayer.appendChild(p);
+          setTimeout(() => p.remove(), 900);
+        }
+      }
+
+      function go() {
+        // change this if your “landing page” is different
+        window.location.href = "app.html";
+      }
+
+      sigilBtn.addEventListener("click", () => {
+        if (busy) return;
+        busy = true;
+
+        sigilBtn.classList.add("sigilPressed");
+        sparkleBurst();
+
+        // Cinematic: closed fades, open comes in
+        setTimeout(() => {
+          coverClosed.classList.remove("isOn");
+          coverOpen.classList.add("isOn");
+        }, 180);
+
+        // quick “flip” via fade + slight zoom
+        setTimeout(() => gateFade.classList.add("fadeOn"), 420);
+
+        // land on app page
+        setTimeout(go, 820);
+      });
+    })();
   </script>
 </body>
-</html>
