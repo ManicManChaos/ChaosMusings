@@ -485,14 +485,24 @@ body.cover{
    CONJURED SIDE PLANE (Stage-Manager style)
    ========================= */
 
-/* Scrim (MUST default to none) */
+/* Scrim (MUST be off unless navOpen) */
 .navScrim{
-  position:fixed;inset:0;
-  display:none;
-  background:var(--veil);
-  backdrop-filter:blur(6px);
-  -webkit-backdrop-filter:blur(6px);
-  z-index:9998;
+  position: fixed;
+  inset: 0;
+  background: var(--veil);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 9998;
+
+  display: none;          /* ✅ IMPORTANT */
+  pointer-events: none;   /* ✅ IMPORTANT */
+}
+
+/* When open */
+body.navOpen .navScrim{
+  display: block;
+  pointer-events: auto;
+}
 }
 
 /* Plane */
