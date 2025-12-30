@@ -270,6 +270,45 @@ if (go === "settings") location.hash = "#settings";
   window.MMOC_ROUTE = (hash) => { location.hash = "#" + hash; };
 
 })();
+
+<script>
+(function () {
+  const sigilBtn = document.getElementById("sigilBtn");
+  const coverClosed = document.getElementById("coverClosed");
+  const coverOpen = document.getElementById("coverOpen");
+  const gateFade = document.getElementById("gateFade");
+
+  if (!sigilBtn) return;
+
+  sigilBtn.addEventListener("click", () => {
+    // Animate button
+    sigilBtn.classList.add("sigilPressed");
+
+    // Sparkle burst (optional visual)
+    for (let i = 0; i < 12; i++) {
+      const s = document.createElement("div");
+      s.className = "spark";
+      s.style.setProperty("--dx", `${(Math.random() * 160 - 80)}px`);
+      s.style.setProperty("--dy", `${(Math.random() * 120 - 60)}px`);
+      s.style.left = "50%";
+      s.style.top = "50%";
+      document.body.appendChild(s);
+      setTimeout(() => s.remove(), 800);
+    }
+
+    // Flip book images
+    setTimeout(() => {
+      coverClosed.classList.remove("isOn");
+      coverOpen.classList.add("isOn");
+      gateFade.classList.add("fadeOn");
+    }, 220);
+
+    // Enter app
+    setTimeout(() => {
+      window.location.href = "app.html#today";
+    }, 900);
+  });
+})();
 </script>
   
 </body>
