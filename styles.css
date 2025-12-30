@@ -583,6 +583,5 @@ body.navOpen .navScrim{display:block}
   background:transparent;
   touch-action:pan-y;
 }
-
 .view{width:100%}
 .view[hidden]{display:none !important}
