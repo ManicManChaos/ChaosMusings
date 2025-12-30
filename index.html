@@ -136,5 +136,79 @@
         setTimeout(go, 820);
       });
     })();
+    
+    // ====== Conjured Side Plane (Swipe from left) ======
+(function () {
+  const sidePlane = document.getElementById("sidePlane");
+  const navScrim = document.getElementById("navScrim");
+  const leftHotzone = document.getElementById("leftHotzone");
+
+  if (!sidePlane || !navScrim || !leftHotzone) return;
+
+  const openNav = () => {
+    document.body.classList.add("navOpen");
+    navScrim.hidden = false;
+    sidePlane.setAttribute("aria-hidden", "false");
+  };
+
+  const closeNav = () => {
+    document.body.classList.remove("navOpen");
+    navScrim.hidden = true;
+    sidePlane.setAttribute("aria-hidden", "true");
+  };
+
+  navScrim.addEventListener("click", closeNav);
+
+  // Swipe detection
+  let startX = 0, startY = 0, tracking = false;
+
+  leftHotzone.addEventListener("touchstart", (e) => {
+    if (!e.touches || e.touches.length !== 1) return;
+    const t = e.touches[0];
+    startX = t.clientX;
+    startY = t.clientY;
+    tracking = true;
+  }, { passive: true });
+
+  leftHotzone.addEventListener("touchmove", (e) => {
+    if (!tracking || !e.touches || e.touches.length !== 1) return;
+    const t = e.touches[0];
+    const dx = t.clientX - startX;
+    const dy = t.clientY - startY;
+
+    // Only open if mostly horizontal + strong enough
+    if (dx > 55 && Math.abs(dy) < 35) {
+      openNav();
+      tracking = false;
+    }
+  }, { passive: true });
+
+  leftHotzone.addEventListener("touchend", () => { tracking = false; }, { passive: true });
+
+  // Glyph navigation actions (map these to your routes/pages)
+  sidePlane.addEventListener("click", (e) => {
+    const btn = e.target.closest(".glyphNav");
+    if (!btn) return;
+
+    const go = btn.getAttribute("data-go");
+    closeNav();
+
+    // Adjust these to match your actual pages:
+    if (go === "app") window.location.href = "app.html";
+    if (go === "roid") {
+      // If roid boy is inside app.html, just go there + anchor later
+      window.location.href = "app.html#roidboy";
+    }
+    if (go === "library") window.location.href = "library.html";
+    if (go === "review") window.location.href = "review.html";
+    if (go === "settings") window.location.href = "library.html#settings"; // placeholder
+  });
+
+  // ESC closes (desktop)
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeNav();
+  });
+})();
+    
   </script>
 </body>
