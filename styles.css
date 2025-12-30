@@ -1,79 +1,190 @@
-/* =========================
-   Manic Musings — Master Styles
-   (APP + COVER + GATE + SIDE PLANE)
-   ========================= */
-
-/* ---- ONE (1) ROOT ONLY ---- */
 :root{
-  /* Core palette */
+  --obsidian:#050608;
   --bg1:#07130c;
   --bg2:#0b1f14;
-  --text:#f7f1e8;
-  --muted:rgba(247,241,232,.72);
-  --shadow:0 18px 50px rgba(0,0,0,.45);
-  --r:18px;
 
-  /* Rich “icon” vibe */
-  --ink: rgba(245, 239, 227, 0.92);      /* bone */
-  --obsidian: #050608;
-  --veil: rgba(0,0,0,0.55);
+  --bone:rgba(245,239,227,.94);
+  --muted:rgba(245,239,227,.70);
+
   --gold: rgba(212, 169, 72, 0.95);
   --goldSoft: rgba(212, 169, 72, 0.22);
-  --emerald: rgba(120, 255, 210, 0.9);m
+  --emerald: rgba(120, 255, 210, 0.92);
 
-  /* Panels */
   --panel: rgba(10, 12, 14, 0.86);
   --panelEdge: rgba(212, 169, 72, 0.28);
-  --panelBlur: blur(18px);
+  --veil: rgba(0,0,0,0.55);
+
+  --shadow:0 18px 60px rgba(0,0,0,.45);
+  --r:18px;
 }
 
 *{box-sizing:border-box}
-body{margin:0}
+html,body{height:100%}
+body.mm{
+  margin:0;
+  color:var(--bone);
+  background:
+    radial-gradient(1000px 700px at 18% 18%, rgba(86,176,120,.18), transparent 60%),
+    radial-gradient(900px 650px at 78% 18%, rgba(214,177,90,.14), transparent 60%),
+    linear-gradient(180deg,var(--bg2),var(--bg1));
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
+  overflow-x:hidden;
+}
+
 a{text-decoration:none;color:inherit}
 
-/* =========================
-   APP SHELL
-   ========================= */
-body.app{
-  font-family:ui-serif,Georgia,"Times New Roman",serif;
-  color:var(--text);
-  background:
-    radial-gradient(1200px 800px at 20% 10%, rgba(214,78,160,.12), transparent 55%),
-    radial-gradient(1200px 800px at 80% 20%, rgba(86,176,120,.16), transparent 60%),
-    radial-gradient(1100px 720px at 55% 85%, rgba(214,177,90,.16), transparent 62%),
-    linear-gradient(180deg,var(--bg2),var(--bg1));
+/* -------------------------
+   Gate
+------------------------- */
+.gateWrap{
+  min-height:100svh;
+  display:grid;
+  place-items:center;
+  padding:24px;
+}
+.gateCard{
+  width:min(980px,92vw);
+  border-radius:26px;
+  padding:26px;
+  background:rgba(8, 18, 14, 0.45);
+  border:1px solid rgba(255,255,255,0.08);
+  box-shadow:var(--shadow);
+  backdrop-filter: blur(10px);
+}
+.gateStage{
+  position:relative;
+  border-radius:22px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,0.08);
+  background:rgba(0,0,0,0.25);
+  aspect-ratio:3/2;
+  min-height:340px;
+}
+.gateImg{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  opacity:0;
+  transform:scale(1.02);
+  transition: opacity 420ms ease, transform 620ms ease;
+  filter:saturate(1.08) contrast(1.04);
+  pointer-events:none; /* IMPORTANT: images never steal taps */
+}
+.gateImg.isOn{
+  opacity:1;
+  transform:scale(1.00);
+}
+.gateFade{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  background: radial-gradient(800px 500px at 50% 45%, rgba(255,215,120,0.10), rgba(0,0,0,0.88));
+  transition:opacity 360ms ease;
+  pointer-events:none;
+}
+.gateFade.fadeOn{opacity:1}
+
+/* Sigil button */
+.sigilBtn{
+  position:absolute;
+  left:50%;
+  top:58%;
+  transform:translate(-50%,-50%);
+  width:130px;height:130px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,0.14);
+  background:rgba(0,0,0,0.25);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  cursor:pointer;
+  display:grid;
+  place-items:center;
+  box-shadow:0 20px 60px rgba(0,0,0,0.35);
+  transition: transform 220ms ease, box-shadow 220ms ease;
+  z-index:10;
+  pointer-events:auto;
+}
+.sigilBtn:hover{ transform:translate(-50%,-50%) scale(1.03); }
+.sigilBtn.sigilPressed{ transform:translate(-50%,-50%) scale(0.96); }
+
+.sigilRing{
+  position:absolute;
+  inset:14px;
+  border-radius:999px;
+  border:2px solid rgba(255, 214, 120, 0.35);
+  box-shadow:0 0 18px rgba(120, 255, 200, 0.14), inset 0 0 22px rgba(255, 214, 120, 0.10);
+  animation:sigilPulse 1.9s ease-in-out infinite;
+}
+.sigilCore{
+  position:absolute;
+  inset:34px;
+  border-radius:999px;
+  background: radial-gradient(circle at 30% 30%, rgba(120,255,200,0.30), rgba(0,0,0,0.12));
+  border:1px solid rgba(120,255,200,0.22);
+}
+.sigilText{
+  letter-spacing:0.16em;
+  font-weight:900;
+  font-size:18px;
+  color:rgba(255,255,255,0.88);
+  text-shadow:0 2px 18px rgba(255, 214, 120, 0.18);
+}
+@keyframes sigilPulse{
+  0%,100%{ transform:scale(1); opacity:0.85; }
+  50%{ transform:scale(1.06); opacity:1; }
 }
 
-.container{max-width:980px;margin:0 auto;padding:18px}
+/* Sparkles */
+.sparkleLayer{ position:absolute; inset:0; pointer-events:none; }
+.spark{
+  position:fixed;
+  width:10px;height:10px;
+  border-radius:999px;
+  background: radial-gradient(circle, rgba(255,230,160,1), rgba(120,255,200,0.2), rgba(0,0,0,0));
+  filter: blur(0.3px);
+  transform: translate(-50%, -50%);
+  animation: sparkFly 780ms ease-out forwards;
+  pointer-events:none;
+  z-index:99999;
+}
+@keyframes sparkFly{
+  0%{opacity:1; transform:translate(-50%,-50%) scale(1);}
+  100%{opacity:0; transform:translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(.6);}
+}
+
+/* Title plate */
+.gateTitlePlate{ margin-top:18px; text-align:center; padding:14px 10px 0; }
+.gateTitle{
+  font-weight:1000;
+  letter-spacing:0.18em;
+  font-size:clamp(18px,3.2vw,28px);
+  opacity:0.92;
+}
+.gateSub{
+  margin-top:8px;
+  opacity:0.7;
+  letter-spacing:0.08em;
+  font-size:13px;
+}
+
+/* -------------------------
+   App shell
+------------------------- */
+.appShell{ min-height:100svh; }
+.container{ max-width:980px; margin:0 auto; padding:18px; }
 
 .topbar{
-  position:sticky;top:0;z-index:5;
-  display:flex;justify-content:space-between;gap:12px;align-items:center;
+  position:sticky; top:0; z-index:5;
+  display:flex; justify-content:space-between; align-items:center;
   padding:14px 18px;
-  background:linear-gradient(90deg, rgba(214,78,160,.16), rgba(86,176,120,.16), rgba(214,177,90,.18));
+  background: linear-gradient(90deg, rgba(86,176,120,.18), rgba(214,177,90,.18));
   border-bottom:1px solid rgba(255,255,255,.08);
-  backdrop-filter:blur(8px);
-  -webkit-backdrop-filter:blur(8px);
+  backdrop-filter: blur(10px);
 }
+.brand{ font-weight:1000; letter-spacing:.5px; }
 
-.brand{
-  font-weight:1000;
-  letter-spacing:.5px;
-  font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif
-}
-
-.nav{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-
-.navlink,.navbtn{
-  padding:8px 10px;border-radius:999px;
-  border:1px solid rgba(255,255,255,.12);
-  background:rgba(0,0,0,.18);
-  color:var(--text);
-  font-weight:900;
-  font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif
-}
-
-/* Cards */
 .card{
   position:relative;
   border:1px solid rgba(255,255,255,.12);
@@ -86,462 +197,89 @@ body.app{
 }
 .card::before{
   content:"";
-  position:absolute;inset:0;border-radius:inherit;
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
   background:linear-gradient(180deg, rgba(16,47,30,.78), rgba(14,43,27,.72));
-  backdrop-filter: blur(14px) saturate(120%);
-  -webkit-backdrop-filter: blur(14px) saturate(120%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
   pointer-events:none;
 }
-.card>*{position:relative;z-index:1}
+.card>*{ position:relative; z-index:1; }
 
-h2{margin:0 0 10px;font-size:20px;letter-spacing:.3px}
-.muted{color:var(--muted);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}
-h2 .ico, summary .ico { margin-right:6px; }
+h2{ margin:0 0 10px; font-size:20px; letter-spacing:.3px }
+.muted{ color:var(--muted); }
 
-/* Fields */
-.field{display:grid;gap:6px;margin:10px 0}
-label{
-  font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;
-  font-size:12px;letter-spacing:.35px;
-  color:rgba(247,241,232,.78)
-}
+.field{ display:grid; gap:6px; margin:10px 0; }
+label{ font-size:12px; letter-spacing:.35px; color:rgba(245,239,227,.80); }
 
-input,select,textarea{
+input,textarea{
   width:100%;
-  padding:12px 14px;
   border-radius:16px;
-  border:1px solid rgba(255, 215, 170, 0.22);
-  background: rgba(10, 18, 14, 0.55);
-  color: #fff;
+  padding:12px 14px;
+  border:1px solid rgba(212,169,72,0.22);
+  background:rgba(10,18,14,0.55);
+  color:#fff;
   outline:none;
-  font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
 }
+textarea{ resize:vertical; }
 
-textarea{resize:vertical}
-
-/* Dropdown arrow */
-select{
-  appearance:none;
-  -webkit-appearance:none;
-  background-image:
-    linear-gradient(45deg, transparent 50%, rgba(255,215,170,0.9) 50%),
-    linear-gradient(135deg, rgba(255,215,170,0.9) 50%, transparent 50%);
-  background-position:
-    calc(100% - 18px) calc(50% - 3px),
-    calc(100% - 12px) calc(50% - 3px);
-  background-size: 6px 6px, 6px 6px;
-  background-repeat:no-repeat;
-  padding-right:38px;
-}
-select option { color:#111; } /* ok on most platforms */
-
-/* Layout grids */
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-@media (max-width:780px){.grid2,.grid3{grid-template-columns:1fr}}
-
-.actions{display:flex;gap:12px;align-items:center;padding:6px 2px 24px}
-.btn{
+.actions{ display:flex; gap:12px; align-items:center; padding:6px 2px 24px; }
+.btn,.miniBtn{
   border:1px solid rgba(255,255,255,.16);
   border-radius:999px;
   padding:12px 14px;
   background:rgba(0,0,0,.22);
-  color:var(--text);
+  color:var(--bone);
   font-weight:900;
   letter-spacing:.4px;
-  font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif
-}
-.btn.primary{background:linear-gradient(90deg, rgba(214,78,160,.85), rgba(214,177,90,.85));color:#08140c}
-.btn.gold{background:linear-gradient(90deg, rgba(214,177,90,.95), rgba(214,78,160,.75));color:#08140c}
-
-details{border:1px solid rgba(255,255,255,.10);border-radius:16px;padding:12px;background:rgba(0,0,0,.12)}
-summary{
-  cursor:pointer;list-style:none;
-  display:flex;justify-content:space-between;gap:10px;align-items:center;
-  font-weight:1000;
-  font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif
-}
-summary::-webkit-details-marker{display:none}
-
-.preview{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
-.preview img{width:92px;height:92px;border-radius:16px;object-fit:cover;border:1px solid rgba(214,177,90,.25)}
-
-/* Moments rows */
-.momentRow{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin:10px 0}
-.momentRow .field{margin:0}
-.momentRow .grow{flex:1;min-width:220px}
-
-/* Inline input (Calendar → Outlook) */
-.inlineInput{display:flex;gap:10px;align-items:center}
-.inlineInput input{flex:1}
-.miniBtn{
-  border:1px solid rgba(255,215,170,.28);
-  background:rgba(0,0,0,.22);
-  color:var(--text);
-  font-weight:900;
-  border-radius:999px;
-  padding:10px 12px;
-  font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;
   cursor:pointer;
 }
-.miniBtn:active{transform:scale(.99)}
-
-.list{display:grid;gap:10px}
-.item{border:1px solid rgba(255,255,255,.10);border-radius:16px;padding:12px;background:rgba(0,0,0,.14);text-align:left}
-.item strong{display:block}
-.viewer{white-space:pre-wrap;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;font-size:14px;line-height:1.4}
-.bar{height:12px;border-radius:999px;background:rgba(255,255,255,.10);overflow:hidden;border:1px solid rgba(255,255,255,.10);margin-top:10px}
-#cycleFill{height:100%;width:0%;background:linear-gradient(90deg, rgba(214,177,90,.95), rgba(214,78,160,.85), rgba(86,176,120,.85))}
-
-/* Writer-space: “So here’s the thing…” */
-#confession{
-  min-height:220px;
-  line-height:1.55;
-  background:
-    linear-gradient(180deg, rgba(0,0,0,.22), rgba(0,0,0,.12)),
-    repeating-linear-gradient(
-      to bottom,
-      rgba(255,255,255,.05) 0px,
-      rgba(255,255,255,.05) 1px,
-      transparent 1px,
-      transparent 26px
-    );
-  border-color: rgba(214,177,90,.22);
+.btn.gold{
+  background:linear-gradient(90deg, rgba(214,177,90,.95), rgba(86,176,120,.55));
+  color:#08140c;
 }
-#confession:focus{
-  border-color: rgba(214,177,90,.45);
-  box-shadow: 0 0 0 3px rgba(214,177,90,.14), 0 18px 40px rgba(0,0,0,.35);
-}
+.miniBtn{ padding:10px 12px; }
+.miniBtn:active,.btn:active{ transform:scale(.99); }
 
-/* Library grouping */
-.monthGroup{
+.list{ display:grid; gap:10px; }
+.item{
   border:1px solid rgba(255,255,255,.10);
   border-radius:16px;
-  background: rgba(0,0,0,.10);
   padding:12px;
+  background:rgba(0,0,0,.14);
+  text-align:left;
 }
-.monthHeader{
-  display:flex;align-items:center;justify-content:space-between;
-  gap:10px;margin-bottom:10px;
-}
-.monthTitle{
-  font-weight:1000;letter-spacing:.04em;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
-}
-.monthEra{min-width:220px}
-@media (max-width:780px){
-  .monthHeader{flex-direction:column;align-items:flex-start}
-  .monthEra{width:100%;min-width:0}
-}
+.item strong{ display:block; }
 
-/* =========================
-   COVER (ICON-SIGIL COVER PAGE)
-   ========================= */
-body.cover{
-  margin:0;
-  min-height:100svh;
-  display:grid;
-  place-items:center;
-  padding:24px;
-  color:#fff;
-  text-align:center;
-  overflow-x:hidden;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
-  background:
-    radial-gradient(1000px 700px at 18% 18%, rgba(214,78,160,.18), transparent 60%),
-    radial-gradient(900px 650px at 78% 18%, rgba(86,176,120,.18), transparent 60%),
-    radial-gradient(900px 650px at 60% 80%, rgba(214,177,90,.18), transparent 62%),
-    #050a08;
-}
+.bar{ height:12px; border-radius:999px; background:rgba(255,255,255,.10); overflow:hidden; border:1px solid rgba(255,255,255,.10); margin-top:10px }
+#cycleFill{ height:100%; width:0%; background:linear-gradient(90deg, rgba(214,177,90,.95), rgba(86,176,120,.85)) }
 
-.coverWrap{width:min(560px,92vw);display:grid;place-items:center;gap:18px;position:relative}
-.sigil{
-  width:min(420px,78vw);
-  aspect-ratio:1/1;
-  position:relative;
-  display:grid;
-  place-items:center;
-  filter: drop-shadow(0 30px 70px rgba(0,0,0,.6));
-}
-.sigil img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  border-radius:28px;
-  border:1px solid rgba(255,215,170,.25);
-}
-.sigilTitle{
-  position:absolute;
-  bottom:10%;
-  left:50%;
-  transform:translateX(-50%);
-  width:86%;
-  padding:10px 12px;
-  border-radius:16px;
-  background: linear-gradient(180deg, rgba(0,0,0,.28), rgba(0,0,0,.10));
-  border:1px solid rgba(255,215,170,.16);
-  font-weight:1000;
-  letter-spacing:.12em;
-  line-height:1.05;
-  text-transform:uppercase;
-  text-shadow: 0 2px 14px rgba(0,0,0,.55);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-}
-.enterBtn{
-  width:min(420px,88vw);
-  border-radius:999px;
-  padding:14px 18px;
-  border:1px solid rgba(255,215,170,.28);
-  background: linear-gradient(90deg, rgba(86,176,120,.35), rgba(214,78,160,.20), rgba(214,177,90,.28));
-  color:#fff;
-  font-weight:1000;
-  letter-spacing:.02em;
-  display:grid;
-  gap:4px;
-  cursor:pointer;
-}
-.enterBtn .enterSub{opacity:.88;font-weight:900;letter-spacing:.04em}
-.enterBtn:active{transform:scale(.99)}
-
-.enterBtn{position:relative;overflow:hidden;transform:translateZ(0)}
-.enterBtn::before{
-  content:"";position:absolute;inset:-60%;
-  background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,.12) 46%,rgba(255,235,160,.28) 50%,rgba(255,255,255,.10) 54%,transparent 62%);
-  transform:translateX(-70%) rotate(10deg);
-  opacity:0;
-}
-.enterBtn::after{
-  content:"";position:absolute;inset:-40%;
-  background:radial-gradient(circle at 50% 55%,rgba(255,235,160,.22) 0%,rgba(255,235,160,.10) 25%,transparent 55%);
-  opacity:0;filter:blur(1px);
-}
-.enterBtn .spellBurst{position:absolute;inset:0;pointer-events:none;opacity:0}
-.enterBtn .spellBurst span{
-  position:absolute;left:50%;top:50%;
-  transform:translate(-50%,-50%) scale(.6);
-  opacity:0;font-weight:1000;letter-spacing:.02em;
-  color:rgba(255,245,200,.95);
-  filter:drop-shadow(0 0 18px rgba(255,235,160,.65));
-}
-.enterBtn.cast::before{opacity:1;animation:spellShimmer 1.05s ease both}
-.enterBtn.cast::after{opacity:1;animation:spellGlow 1.2s ease both}
-.enterBtn.cast .spellBurst{opacity:1;animation:spellFade 1.2s ease both}
-.enterBtn.cast .spellBurst span:nth-child(1){animation:runePop 1.05s ease both}
-.enterBtn.cast .spellBurst span:nth-child(2){animation:runePop2 1.05s ease both}
-.enterBtn.cast .spellBurst span:nth-child(3){animation:runePop3 1.05s ease both}
-@keyframes spellShimmer{0%{transform:translateX(-70%) rotate(10deg)}100%{transform:translateX(70%) rotate(10deg)}}
-@keyframes spellGlow{0%{opacity:0;transform:scale(.98)}18%{opacity:1}100%{opacity:0;transform:scale(1.02)}}
-@keyframes spellFade{0%{opacity:0}20%{opacity:1}100%{opacity:0}}
-@keyframes runePop{0%{opacity:0;transform:translate(-50%,-50%) scale(.55) rotate(-8deg)}18%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1.55) rotate(10deg)}}
-@keyframes runePop2{0%{opacity:0;transform:translate(calc(-50% - 46px),calc(-50% + 10px)) scale(.5) rotate(10deg)}22%{opacity:1}100%{opacity:0;transform:translate(calc(-50% - 78px),calc(-50% + 6px)) scale(1.35) rotate(-12deg)}}
-@keyframes runePop3{0%{opacity:0;transform:translate(calc(-50% + 42px),calc(-50% + 14px)) scale(.5) rotate(-6deg)}22%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + 84px),calc(-50% + 12px)) scale(1.35) rotate(14deg)}}
-
-.coverFade{
-  position:fixed;inset:0;pointer-events:none;
-  background: radial-gradient(60% 55% at 50% 15%, transparent 0%, rgba(0,0,0,.35) 70%, rgba(0,0,0,.55) 100%);
-}
-
-/* Cover sparkles */
-.sparkle{
-  position:fixed;
-  width:6px;height:6px;border-radius:50%;
-  background: radial-gradient(circle, rgba(255,255,255,.95), rgba(255,215,140,.7) 45%, rgba(255,255,255,0) 70%);
-  box-shadow: 0 0 16px rgba(255,215,140,.55);
-  pointer-events:none;
-  animation: sparklePop 700ms ease-out forwards;
-}
-@keyframes sparklePop{
-  from{transform:translate(-50%,-50%) scale(.6);opacity:0}
-  30%{opacity:1}
-  to{transform:translate(-50%,-90%) scale(1.3);opacity:0}
-}
-
-/* =========================
-   GATE / BOOK INTRO (closed → open)
-   ========================= */
-.gateBody{
-  margin:0;
-  min-height:100vh;
-  display:grid;
-  place-items:center;
-  background:
-    radial-gradient(1200px 700px at 50% 30%, rgba(0,0,0,0.2), rgba(0,0,0,0.9)),
-    linear-gradient(135deg, rgba(16,45,32,0.95), rgba(7,7,10,0.98));
-  color:#eaeaea;
-}
-
-.gateWrap{width:min(980px,92vw);padding:28px 0}
-.gateCard{
-  position:relative;
-  border-radius:26px;
-  padding:26px;
-  background:rgba(8,18,14,0.45);
-  border:1px solid rgba(255,255,255,0.08);
-  box-shadow:0 18px 70px rgba(0,0,0,0.45);
-  backdrop-filter:blur(10px);
-  -webkit-backdrop-filter:blur(10px);
-}
-
-.gateStage{
-  position:relative;
-  border-radius:22px;
-  overflow:hidden;
-  border:1px solid rgba(255,255,255,0.08);
-  background:rgba(0,0,0,0.25);
-  aspect-ratio:3/2;
-  min-height:340px;
-}
-
-.gateImg{
-  position:absolute;inset:0;
-  width:100%;height:100%;
-  object-fit:cover;
-  opacity:0;
-    pointer-events: none;
-  transform:scale(1.02);
-  transition:opacity 420ms ease, transform 620ms ease;
-  filter:saturate(1.05) contrast(1.02);
-}
-.gateImg.isOn{opacity:1;transform:scale(1.00)}
-
-.gateFade{
-  position:absolute;inset:0;
-  opacity:0;
-  background: radial-gradient(800px 500px at 50% 45%, rgba(255,215,120,0.10), rgba(0,0,0,0.88));
-  transition:opacity 360ms ease;
-  pointer-events:none;
-}
-.gateFade.fadeOn{opacity:1}
-
-/* === FIX: ensure sigil button is clickable on iOS === */
-.gateStage {
-  position: relative;
-}
-
-.gateImg,
-.gateFade,
-.sparkleLayer {
-  pointer-events: none !important;
-}
-
-.sigilBtn {
-  pointer-events: auto !important;
-  z-index: 10;
-  position: absolute;
-}
-
-/* Sigil button */
-.sigilBtn{
-  position:absolute;
-  left:50%;top:58%;
-  transform:translate(-50%,-50%);
-  width:130px;height:130px;
-  border-radius:999px;
-    z-index: 10;
-  border:1px solid rgba(255,255,255,0.14);
-  background:rgba(0,0,0,0.25);
-  backdrop-filter:blur(8px);
-  -webkit-backdrop-filter:blur(8px);
-  cursor:pointer;
-  display:grid;place-items:center;
-  box-shadow:0 20px 60px rgba(0,0,0,0.35);
-  transition:transform 220ms ease, box-shadow 220ms ease;
-}
-.sigilBtn:hover{transform:translate(-50%,-50%) scale(1.03)}
-.sigilBtn.sigilPressed{transform:translate(-50%,-50%) scale(0.96)}
-
-.sigilRing{
-  position:absolute;inset:14px;
-  border-radius:999px;
-  border:2px solid rgba(255, 214, 120, 0.35);
-  box-shadow:0 0 18px rgba(120, 255, 200, 0.14), inset 0 0 22px rgba(255, 214, 120, 0.10);
-  animation:sigilPulse 1.9s ease-in-out infinite;
-}
-.sigilCore{
-  position:absolute;inset:34px;
-  border-radius:999px;
-  background:radial-gradient(circle at 30% 30%, rgba(120,255,200,0.28), rgba(0,0,0,0.1));
-  border:1px solid rgba(120,255,200,0.22);
-}
-.sigilText{
-  letter-spacing:0.22em;
-  font-weight:700;
-  font-size:14px;
-  color:rgba(255,255,255,0.85);
-  text-shadow:0 2px 18px rgba(255, 214, 120, 0.18);
-}
-@keyframes sigilPulse{
-  0%,100%{transform:scale(1);opacity:.85}
-  50%{transform:scale(1.06);opacity:1}
-}
-
-/* Gate sparkles */
-.sparkleLayer{position:absolute;inset:0;pointer-events:none}
-.spark{
-  position:fixed;
-  width:10px;height:10px;border-radius:999px;
-  background:radial-gradient(circle, rgba(255,230,160,1), rgba(120,255,200,0.2), rgba(0,0,0,0));
-  filter:blur(.3px);
-  transform:translate(-50%,-50%);
-  animation:sparkFly 780ms ease-out forwards;
-}
-@keyframes sparkFly{
-  0%{opacity:1;transform:translate(-50%,-50%) scale(1)}
-  100%{opacity:0;transform:translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(.6)}
-}
-
-/* Title plate */
-.gateTitlePlate{margin-top:18px;text-align:center;padding:14px 10px 0}
-.gateTitle{font-weight:800;letter-spacing:.18em;font-size:clamp(18px, 3.2vw, 28px);opacity:.92}
-.gateSub{margin-top:8px;opacity:.7;letter-spacing:.08em;font-size:13px}
-
-/* =========================
-   CONJURED SIDE PLANE (Stage-Manager style)
-   ========================= */
-
-/* Scrim (MUST be off unless navOpen) */
+/* -------------------------
+   Stage-Manager Side Plane
+------------------------- */
 .navScrim{
-  position: fixed;
-  inset: 0;
-  background: var(--veil);
+  position:fixed;
+  inset:0;
+  background:var(--veil);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-  z-index: 9998;
-
-  /* IMPORTANT */
-  display: none;
-  pointer-events: none;
+  z-index:9998;
 }
-
-/* Only when open */
-body.navOpen .navScrim{
-  display: block;
-  pointer-events: auto;
-}
-}
-
-/* Plane */
 .sidePlane{
   position:fixed;
-  top:0;left:0;
+  top:0; left:0;
   height:100%;
   width:92px;
   transform:translateX(-110%);
   transition:transform 320ms cubic-bezier(.2,.9,.2,1);
   z-index:9999;
   background:var(--panel);
-  backdrop-filter:var(--panelBlur);
-  -webkit-backdrop-filter:var(--panelBlur);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   border-right:1px solid var(--panelEdge);
   box-shadow:16px 0 40px rgba(0,0,0,0.55);
 }
-
-/* Open state */
-body.navOpen .sidePlane{transform:translateX(0)}
-body.navOpen .navScrim{display:block}
+body.navOpen .sidePlane{ transform:translateX(0); }
+body.navOpen #navScrim{ display:block; }
 
 .sidePlaneInner{
   height:100%;
@@ -552,7 +290,6 @@ body.navOpen .navScrim{display:block}
   align-items:center;
   justify-content:center;
 }
-
 .glyphNav{
   width:58px;height:58px;
   border-radius:18px;
@@ -560,20 +297,12 @@ body.navOpen .navScrim{display:block}
   background:
     radial-gradient(circle at 30% 20%, var(--goldSoft), rgba(0,0,0,0)),
     rgba(0,0,0,0.25);
-  color:var(--ink);
-  font-size:26px;
-  line-height:1;
+  color:var(--bone);
+  font-size:22px;
   cursor:pointer;
-  transition:transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
 }
-.glyphNav:active{transform:scale(.98)}
-.glyphNav:focus{
-  outline:none;
-  border-color:rgba(212, 169, 72, 0.45);
-  box-shadow:0 0 0 3px rgba(212, 169, 72, 0.18);
-}
+.glyphNav:active{ transform:scale(.98); }
 
-/* Swipe hotzone (avoid dead-edge iOS) */
 .leftHotzone{
   position:fixed;
   top:0;
@@ -582,7 +311,7 @@ body.navOpen .navScrim{display:block}
   height:100%;
   z-index:9997;
   background:transparent;
-  touch-action:pan-y;
+  touch-action: pan-y;
 }
-.view{width:100%}
-.view[hidden]{display:none !important}
+
+.view[hidden]{ display:none !important; }
