@@ -416,22 +416,21 @@ if (duration && duration.tagName === "SELECT") {
     }, 450);
   };
 
-  const loadFromQueryOrStorage = async () => {
-    const params = new URLSearchParams(location.search);
-    const dateFromQuery = params.get("date");
-    const dateEl = $("date");
-    if (dateEl) dateEl.value = dateFromQuery || dateEl.value || todayISO();
+ const loadFromQueryOrStorage = () => {
+  const params = new URLSearchParams(location.search);
+  const dateFromQuery = params.get("date");
+  const dateEl = $("date");
 
-    // load from cloud first (if logged in), otherwise local
-    const cloud = await cloudGetByDate(dateEl ? dateEl.value : todayISO());
-    if (cloud?.data) applyFormState(cloud.data);
-    else {
-      const entry = getEntryByDate(dateEl ? dateEl.value : todayISO());
-      if (entry?.data) applyFormState(entry.data);
-    }
+  // FORCE TODAY unless a specific date is requested (from Library)
+  const targetDate = dateFromQuery || todayISO();
+  if (dateEl) dateEl.value = targetDate;
 
-    setDateDefaults();
-  };
+  // Load that entry if it exists
+  const entry = getEntryByDate(targetDate);
+  if (entry && entry.data) applyFormState(entry.data);
+
+  setDateDefaults();
+};
 
   const wireAutosave = () => {
     const root = document.querySelector("body");
