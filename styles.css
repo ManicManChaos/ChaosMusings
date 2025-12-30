@@ -19,7 +19,7 @@
   --veil: rgba(0,0,0,0.55);
   --gold: rgba(212, 169, 72, 0.95);
   --goldSoft: rgba(212, 169, 72, 0.22);
-  --emerald: rgba(120, 255, 210, 0.9);
+  --emerald: rgba(120, 255, 210, 0.9);m
 
   /* Panels */
   --panel: rgba(10, 12, 14, 0.86);
@@ -511,11 +511,12 @@ body.cover{
   -webkit-backdrop-filter: blur(6px);
   z-index: 9998;
 
-  display: none;          /* ✅ IMPORTANT */
-  pointer-events: none;   /* ✅ IMPORTANT */
+  /* IMPORTANT */
+  display: none;
+  pointer-events: none;
 }
 
-/* When open */
+/* Only when open */
 body.navOpen .navScrim{
   display: block;
   pointer-events: auto;
