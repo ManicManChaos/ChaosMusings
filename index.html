@@ -34,12 +34,7 @@
 
   <script>
     const v = Date.now();
-
-    // keep SW but bump cache by query so Netlify stops serving older builds
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=' + v).catch(() => {});
-    }
-
+   
     function sparkleBurst(x, y) {
       for (let i = 0; i < 12; i++) {
         const s = document.createElement('div');
