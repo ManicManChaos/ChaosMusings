@@ -416,6 +416,23 @@ body.cover{
 }
 .gateFade.fadeOn{opacity:1}
 
+/* === FIX: ensure sigil button is clickable on iOS === */
+.gateStage {
+  position: relative;
+}
+
+.gateImg,
+.gateFade,
+.sparkleLayer {
+  pointer-events: none !important;
+}
+
+.sigilBtn {
+  pointer-events: auto !important;
+  z-index: 10;
+  position: absolute;
+}
+
 /* Sigil button */
 .sigilBtn{
   position:absolute;
