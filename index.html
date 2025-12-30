@@ -2,47 +2,46 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="theme-color" content="#0b1b14" />
-
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Manic Musings of Chaos</title>
 
+  <!-- PWA -->
   <link rel="manifest" href="manifest.json" />
-  <link rel="apple-touch-icon" href="icons/icon-180.png" />
-  <link rel="icon" type="image/png" href="favicon.png" />
+  <meta name="theme-color" content="#050608" />
+  <link rel="icon" href="favicon.png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
 
   <link rel="stylesheet" href="styles.css" />
 </head>
 
-<!-- 🜁 Concealed Side Plane (Summoned Nav) -->
-<div id="navScrim" class="navScrim" hidden></div>
+<body class="mm">
 
-<aside id="sidePlane" class="sidePlane" aria-hidden="true">
-  <div class="sidePlaneInner" role="navigation" aria-label="Manic Musings Navigation">
-    <button class="glyphNav" data-go="app" aria-label="Today">📖</button>
-    <button class="glyphNav" data-go="roid" aria-label="Roid Boy">🜂</button>
-    <button class="glyphNav" data-go="library" aria-label="Library">🜄</button>
-    <button class="glyphNav" data-go="review" aria-label="Year in Review">🜁</button>
-    <button class="glyphNav" data-go="settings" aria-label="Settings">⚙︎</button>
-  </div>
-</aside>
+  <!-- LEFT SWIPE HOTZONE (opens nav) -->
+  <div class="leftHotzone" id="leftHotzone" aria-hidden="true"></div>
 
-<!-- Invisible swipe-hotzone (NOT at the absolute edge to avoid iOS back-swipe conflicts) -->
-<div id="leftHotzone" class="leftHotzone" aria-hidden="true"></div>
+  <!-- NAV SCRIM -->
+  <div class="navScrim" id="navScrim" hidden></div>
 
-<body class="gateBody">
-  <main class="gateWrap" role="main">
-    <section class="gateCard" aria-label="Manic Musings of Chaos – Entrance">
-<div id="view-gate" class="view is-active">
-  <!-- KEEP your existing gate HTML exactly as-is inside here -->
-</div>
-<div id="view-today" class="view" hidden></div>
-<div id="view-library" class="view" hidden></div>
-<div id="view-review" class="view" hidden></div>
-      <!-- STAGE (closed → open) -->
-      <div class="gateStage" id="gateStage">
+  <!-- STAGE-MANAGER STYLE SIDE PLANE -->
+  <aside class="sidePlane" id="sidePlane" aria-label="Navigation">
+    <div class="sidePlaneInner">
+      <!-- order: Today, Floating, Roid, Library, Review, Settings -->
+      <button class="glyphNav" data-go="today" aria-label="Today">📖</button>
+      <button class="glyphNav" data-go="floating" aria-label="Floating Sections">⟡</button>
+      <button class="glyphNav" data-go="roid" aria-label="Roid Boy">🜃</button>
+      <button class="glyphNav" data-go="library" aria-label="Library">🗂️</button>
+      <button class="glyphNav" data-go="review" aria-label="Year in Review">✨</button>
+      <button class="glyphNav" data-go="settings" aria-label="Settings">⚙️</button>
+    </div>
+  </aside>
+
+  <!-- =========================
+       GATE (INTRO)
+       ========================= -->
+  <main class="gateWrap" id="gateWrap" role="main" aria-label="Manic Musings of Chaos — Entrance">
+    <section class="gateCard">
+      <div class="gateStage" id="gateStage" aria-label="Spellbook Gate">
+        <!-- CLOSED -->
         <img
           id="coverClosed"
           class="gateImg isOn"
@@ -50,6 +49,8 @@
           alt="Closed spellbook on a stand"
           draggable="false"
         />
+
+        <!-- OPEN -->
         <img
           id="coverOpen"
           class="gateImg"
@@ -58,257 +59,131 @@
           draggable="false"
         />
 
-        <!-- Sigil button (translucent) -->
-        <button class="sigilBtn" id="sigilBtn" type="button" aria-label="Cast the opening spell">
+        <!-- SIGIL BUTTON -->
+        <button class="sigilBtn" id="sigilBtn" type="button" aria-label="Open the book">
           <span class="sigilRing" aria-hidden="true"></span>
           <span class="sigilCore" aria-hidden="true"></span>
- <span class="sigilText" aria-label="Earth Fire Water Air">🜃 🜂 🜄 🜁</span>
+
+          <!-- 4 elements glyphs (no word “cast”) -->
+          <span class="sigilText" aria-label="Earth, Fire, Water, Air">🜃 △ ▽ 🜁</span>
         </button>
 
-        <!-- Sparkle burst container -->
+        <!-- SPARKLES -->
         <div class="sparkleLayer" id="sparkleLayer" aria-hidden="true"></div>
 
-        <!-- Subtle fade so the “flip” feels cinematic -->
+        <!-- CINEMATIC FADE -->
         <div class="gateFade" id="gateFade" aria-hidden="true"></div>
       </div>
 
-      <!-- Title plate -->
-      <div class="gateTitlePlate">
+      <!-- TITLE PLATE -->
+      <div class="gateTitlePlate" id="gateTitlePlate">
         <div class="gateTitle">MANIC MUSINGS<br/>OF CHAOS</div>
         <div class="gateSub">tell no lies</div>
       </div>
-
     </section>
   </main>
 
-  <script>
-    (function () {
-      const sigilBtn = document.getElementById("sigilBtn");
-      const coverClosed = document.getElementById("coverClosed");
-      const coverOpen = document.getElementById("coverOpen");
-      const sparkleLayer = document.getElementById("sparkleLayer");
-      const gateFade = document.getElementById("gateFade");
+  <!-- =========================
+       APP SHELL (INSIDE)
+       ========================= -->
+  <main class="appShell" id="appShell" hidden>
+    <header class="topbar">
+      <button class="miniBtn" id="openNavBtn" type="button" aria-label="Open navigation">☰</button>
+      <div class="brand">Manic Musings</div>
+      <button class="miniBtn" id="goHomeBtn" type="button" aria-label="Go to Today">📖</button>
+    </header>
 
-      let busy = false;
+    <div class="container">
 
-      function sparkleBurst() {
-        // big gold-green burst (no external libs)
-        const rect = sigilBtn.getBoundingClientRect();
-        const cx = rect.left + rect.width / 2;
-        const cy = rect.top + rect.height / 2;
+      <!-- VIEW: TODAY -->
+      <section class="view card" id="view-today">
+        <h2>Today</h2>
+        <p class="muted">Your daily entry lives here. (This is already wired — we’ll enhance after Floating Sections.)</p>
 
-        for (let i = 0; i < 22; i++) {
-          const p = document.createElement("div");
-          p.className = "spark";
-          const angle = Math.random() * Math.PI * 2;
-          const dist = 80 + Math.random() * 160;
-          const x = Math.cos(angle) * dist;
-          const y = Math.sin(angle) * dist;
+        <div class="field">
+          <label>Date</label>
+          <input type="date" id="entryDate" />
+        </div>
 
-          p.style.left = cx + "px";
-          p.style.top = cy + "px";
-          p.style.setProperty("--dx", x + "px");
-          p.style.setProperty("--dy", y + "px");
-          p.style.animationDelay = (Math.random() * 0.08) + "s";
+        <div class="field">
+          <label>Title</label>
+          <input type="text" id="entryTitle" placeholder="What do we call this chapter?" />
+        </div>
 
-          sparkleLayer.appendChild(p);
-          setTimeout(() => p.remove(), 900);
-        }
-      }
+        <div class="field">
+          <label>So here’s the thing…</label>
+          <textarea id="confession" rows="8" placeholder="Write it raw. We’ll structure it later."></textarea>
+        </div>
 
-      function go() {
-        // change this if your “landing page” is different
-        window.location.hash = "#today";
-      }
+        <div class="actions">
+          <button class="btn gold" id="saveEntryBtn" type="button">Save</button>
+          <button class="btn" id="sparkleBtn" type="button">Sparkle</button>
+        </div>
+      </section>
 
-      sigilBtn.addEventListener("click", () => {
-        if (busy) return;
-        busy = true;
+      <!-- VIEW: FLOATING SECTIONS (NEXT) -->
+      <section class="view card" id="view-floating" hidden>
+        <h2>Floating Sections</h2>
+        <p class="muted">
+          Next build: draggable / floating ritual cards (Work, Love, Chaos, Body, Money, etc.).
+        </p>
+        <div class="item">
+          <strong>Planned</strong>
+          Floating panels + snap zones + “pin to day” + glow state.
+        </div>
+      </section>
 
-        sigilBtn.classList.add("sigilPressed");
-        sparkleBurst();
+      <!-- VIEW: ROID BOY (AFTER FLOATING) -->
+      <section class="view card" id="view-roid" hidden>
+        <h2>Roid Boy</h2>
+        <p class="muted">
+          Placeholder. Next after Floating Sections: full pop-out character expansion + layered scenes.
+        </p>
+        <div class="item">
+          <strong>Planned</strong>
+          Pop-out overlay + profile + “ritual prompts” + animation.
+        </div>
+      </section>
 
-        // Cinematic: closed fades, open comes in
-        setTimeout(() => {
-          coverClosed.classList.remove("isOn");
-          coverOpen.classList.add("isOn");
-        }, 180);
+      <!-- VIEW: LIBRARY -->
+      <section class="view card" id="view-library" hidden>
+        <h2>Library</h2>
+        <p class="muted">All entries. Grouped by month/era. (We’ll wire the real data store later.)</p>
+        <div class="list" id="libraryList">
+          <div class="item"><strong>Example</strong><span class="muted">No entries loaded yet.</span></div>
+        </div>
+      </section>
 
-        // quick “flip” via fade + slight zoom
-        setTimeout(() => gateFade.classList.add("fadeOn"), 420);
+      <!-- VIEW: YEAR IN REVIEW -->
+      <section class="view card" id="view-review" hidden>
+        <h2>Year in Review</h2>
+        <p class="muted">
+          Next milestones: location auto-capture (GPS), photo recap, “video year wrap”.
+        </p>
 
-        // land on app page
-        setTimeout(go, 820);
-      });
-    })();
-    
-    // ====== Conjured Side Plane (Swipe from left) ======
-(function () {
-  const sidePlane = document.getElementById("sidePlane");
-  const navScrim = document.getElementById("navScrim");
-  const leftHotzone = document.getElementById("leftHotzone");
+        <div class="bar"><div id="cycleFill"></div></div>
+      </section>
 
-  if (!sidePlane || !navScrim || !leftHotzone) return;
+      <!-- VIEW: SETTINGS -->
+      <section class="view card" id="view-settings" hidden>
+        <h2>Settings</h2>
+        <p class="muted">Next milestones: Passkey + Postmark + calendar + socials.</p>
 
-  const openNav = () => {
-    document.body.classList.add("navOpen");
-    navScrim.hidden = false;
-    sidePlane.setAttribute("aria-hidden", "false");
-  };
+        <details>
+          <summary>Planned Integrations</summary>
+          <div class="list" style="margin-top:10px">
+            <div class="item"><strong>Passkey / Auth</strong><span class="muted">Supabase passkeys / secure login</span></div>
+            <div class="item"><strong>Email (Postmark)</strong><span class="muted">send receipts, exports, confirmations</span></div>
+            <div class="item"><strong>Outlook Calendar</strong><span class="muted">connect + push “ritual events”</span></div>
+            <div class="item"><strong>Instagram / X / Facebook</strong><span class="muted">share snippets + year recap</span></div>
+            <div class="item"><strong>Location</strong><span class="muted">GPS auto-populate + places in recap</span></div>
+          </div>
+        </details>
+      </section>
 
-  const closeNav = () => {
-    document.body.classList.remove("navOpen");
-    navScrim.hidden = true;
-    sidePlane.setAttribute("aria-hidden", "true");
-  };
+    </div>
+  </main>
 
-  navScrim.addEventListener("click", closeNav);
-
-  // Swipe detection
-  let startX = 0, startY = 0, tracking = false;
-
-  leftHotzone.addEventListener("touchstart", (e) => {
-    if (!e.touches || e.touches.length !== 1) return;
-    const t = e.touches[0];
-    startX = t.clientX;
-    startY = t.clientY;
-    tracking = true;
-  }, { passive: true });
-
-  leftHotzone.addEventListener("touchmove", (e) => {
-    if (!tracking || !e.touches || e.touches.length !== 1) return;
-    const t = e.touches[0];
-    const dx = t.clientX - startX;
-    const dy = t.clientY - startY;
-
-    // Only open if mostly horizontal + strong enough
-    if (dx > 55 && Math.abs(dy) < 35) {
-      openNav();
-      tracking = false;
-    }
-  }, { passive: true });
-
-  leftHotzone.addEventListener("touchend", () => { tracking = false; }, { passive: true });
-
-  // Glyph navigation actions (map these to your routes/pages)
-  sidePlane.addEventListener("click", (e) => {
-    const btn = e.target.closest(".glyphNav");
-    if (!btn) return;
-
-    const go = btn.getAttribute("data-go");
-    closeNav();
-
-    // Adjust these to match your actual pages:
-if (go === "app")      location.hash = "#today";
-if (go === "roid")     location.hash = "#roidboy";
-if (go === "library")  location.hash = "#library";
-if (go === "review")   location.hash = "#review";
-if (go === "settings") location.hash = "#settings";
-
-  // ESC closes (desktop)
-  window.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeNav();
-  });
-})();
-    
-  </script>
-  
-  <template id="tpl-today">
-  <!-- PASTE ONLY the inside of <body> from app.html here -->
-</template>
-
-<template id="tpl-library">
-  <!-- PASTE ONLY the inside of <body> from library.html here -->
-</template>
-
-<template id="tpl-review">
-  <!-- PASTE ONLY the inside of <body> from review.html here -->
-</template>
-
-<script>
-(function () {
-  const views = {
-    gate: document.getElementById("view-gate"),
-    today: document.getElementById("view-today"),
-    library: document.getElementById("view-library"),
-    review: document.getElementById("view-review"),
-  };
-
-  const templates = {
-    today: document.getElementById("tpl-today"),
-    library: document.getElementById("tpl-library"),
-    review: document.getElementById("tpl-review"),
-  };
-
-  const mount = (name) => {
-    // hide all
-    Object.values(views).forEach(v => { v.hidden = true; v.classList.remove("is-active"); });
-
-    // show target
-    const v = views[name] || views.gate;
-    v.hidden = false;
-    v.classList.add("is-active");
-
-    // lazy-inject template content ONCE
-    if (templates[name] && v.childElementCount === 0) {
-      v.appendChild(templates[name].content.cloneNode(true));
-    }
-
-    // allow your existing JS to re-bind if it uses DOMContentLoaded assumptions
-    window.dispatchEvent(new Event("mmoc:viewchange"));
-  };
-
-  const route = () => {
-    const hash = (location.hash || "#gate").replace("#", "");
-    mount(hash);
-  };
-
-  window.addEventListener("hashchange", route);
-  route();
-
-  // Make "go to app.html" actions route internally instead:
-  window.MMOC_ROUTE = (hash) => { location.hash = "#" + hash; };
-
-})();
-
-<script>
-(function () {
-  const sigilBtn = document.getElementById("sigilBtn");
-  const coverClosed = document.getElementById("coverClosed");
-  const coverOpen = document.getElementById("coverOpen");
-  const gateFade = document.getElementById("gateFade");
-
-  if (!sigilBtn) return;
-
-  sigilBtn.addEventListener("click", () => {
-    // Animate button
-    sigilBtn.classList.add("sigilPressed");
-
-    // Sparkle burst (optional visual)
-    for (let i = 0; i < 12; i++) {
-      const s = document.createElement("div");
-      s.className = "spark";
-      s.style.setProperty("--dx", `${(Math.random() * 160 - 80)}px`);
-      s.style.setProperty("--dy", `${(Math.random() * 120 - 60)}px`);
-      s.style.left = "50%";
-      s.style.top = "50%";
-      document.body.appendChild(s);
-      setTimeout(() => s.remove(), 800);
-    }
-
-    // Flip book images
-    setTimeout(() => {
-      coverClosed.classList.remove("isOn");
-      coverOpen.classList.add("isOn");
-      gateFade.classList.add("fadeOn");
-    }, 220);
-
-    // Enter app
-    setTimeout(() => {
-      window.location.href = "app.html#today";
-    }, 900);
-  });
-})();
-</script>
-  
+  <script src="app.js"></script>
 </body>
+</html>
