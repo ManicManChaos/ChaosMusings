@@ -435,3 +435,97 @@ h2 .ico, summary .ico { margin-right:6px; }
   letter-spacing: 0.08em;
   font-size: 13px;
 }
+/* ====== Conjured Side Plane (Stage-Manager style) ====== */
+:root{
+  --ink: rgba(245, 239, 227, 0.92);         /* bone */
+  --obsidian: #050608;
+  --veil: rgba(0,0,0,0.55);
+  --gold: rgba(212, 169, 72, 0.95);
+  --goldSoft: rgba(212, 169, 72, 0.22);
+  --emerald: rgba(120, 255, 210, 0.9);
+  --panel: rgba(10, 12, 14, 0.86);
+  --panelEdge: rgba(212, 169, 72, 0.28);
+  --panelBlur: blur(18px);
+}
+
+/* Scrim */
+.navScrim{
+  position: fixed;
+  inset: 0;
+  background: var(--veil);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 9998;
+}
+
+/* The plane */
+.sidePlane{
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 92px;                 /* slim = ritual, not menu */
+  transform: translateX(-110%);
+  transition: transform 320ms cubic-bezier(.2,.9,.2,1);
+  z-index: 9999;
+
+  background: var(--panel);
+  backdrop-filter: var(--panelBlur);
+  -webkit-backdrop-filter: var(--panelBlur);
+
+  border-right: 1px solid var(--panelEdge);
+  box-shadow: 16px 0 40px rgba(0,0,0,0.55);
+}
+
+/* When open */
+body.navOpen .sidePlane{ transform: translateX(0); }
+body.navOpen .navScrim{ display: block; }
+
+/* Inside */
+.sidePlaneInner{
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 12px;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Glyph buttons */
+.glyphNav{
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background:
+    radial-gradient(circle at 30% 20%, var(--goldSoft), rgba(0,0,0,0)),
+    rgba(0,0,0,0.25);
+  color: var(--ink);
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.glyphNav:active{
+  transform: scale(0.98);
+}
+
+.glyphNav:focus{
+  outline: none;
+  border-color: rgba(212, 169, 72, 0.45);
+  box-shadow: 0 0 0 3px rgba(212, 169, 72, 0.18);
+}
+
+/* Invisible swipe hotzone (avoid absolute iOS edge) */
+.leftHotzone{
+  position: fixed;
+  top: 0;
+  left: 18px;     /* IMPORTANT: not 0px */
+  width: 22px;
+  height: 100%;
+  z-index: 9997;
+  background: transparent;
+  touch-action: pan-y;
+}
