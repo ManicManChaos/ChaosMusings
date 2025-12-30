@@ -16,6 +16,22 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 
+<!-- 🜁 Concealed Side Plane (Summoned Nav) -->
+<div id="navScrim" class="navScrim" hidden></div>
+
+<aside id="sidePlane" class="sidePlane" aria-hidden="true">
+  <div class="sidePlaneInner" role="navigation" aria-label="Manic Musings Navigation">
+    <button class="glyphNav" data-go="app" aria-label="Today">📖</button>
+    <button class="glyphNav" data-go="roid" aria-label="Roid Boy">🜂</button>
+    <button class="glyphNav" data-go="library" aria-label="Library">🜄</button>
+    <button class="glyphNav" data-go="review" aria-label="Year in Review">🜁</button>
+    <button class="glyphNav" data-go="settings" aria-label="Settings">⚙︎</button>
+  </div>
+</aside>
+
+<!-- Invisible swipe-hotzone (NOT at the absolute edge to avoid iOS back-swipe conflicts) -->
+<div id="leftHotzone" class="leftHotzone" aria-hidden="true"></div>
+
 <body class="gateBody">
   <main class="gateWrap" role="main">
     <section class="gateCard" aria-label="Manic Musings of Chaos – Entrance">
