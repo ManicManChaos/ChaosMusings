@@ -35,7 +35,12 @@
 <body class="gateBody">
   <main class="gateWrap" role="main">
     <section class="gateCard" aria-label="Manic Musings of Chaos – Entrance">
-
+<div id="view-gate" class="view is-active">
+  <!-- KEEP your existing gate HTML exactly as-is inside here -->
+</div>
+<div id="view-today" class="view" hidden></div>
+<div id="view-library" class="view" hidden></div>
+<div id="view-review" class="view" hidden></div>
       <!-- STAGE (closed → open) -->
       <div class="gateStage" id="gateStage">
         <img
@@ -113,7 +118,7 @@
 
       function go() {
         // change this if your “landing page” is different
-        window.location.href = "app.html";
+        window.location.hash = "#today";
       }
 
       sigilBtn.addEventListener("click", () => {
@@ -211,4 +216,64 @@
 })();
     
   </script>
+  
+  <template id="tpl-today">
+  <!-- PASTE ONLY the inside of <body> from app.html here -->
+</template>
+
+<template id="tpl-library">
+  <!-- PASTE ONLY the inside of <body> from library.html here -->
+</template>
+
+<template id="tpl-review">
+  <!-- PASTE ONLY the inside of <body> from review.html here -->
+</template>
+
+<script>
+(function () {
+  const views = {
+    gate: document.getElementById("view-gate"),
+    today: document.getElementById("view-today"),
+    library: document.getElementById("view-library"),
+    review: document.getElementById("view-review"),
+  };
+
+  const templates = {
+    today: document.getElementById("tpl-today"),
+    library: document.getElementById("tpl-library"),
+    review: document.getElementById("tpl-review"),
+  };
+
+  const mount = (name) => {
+    // hide all
+    Object.values(views).forEach(v => { v.hidden = true; v.classList.remove("is-active"); });
+
+    // show target
+    const v = views[name] || views.gate;
+    v.hidden = false;
+    v.classList.add("is-active");
+
+    // lazy-inject template content ONCE
+    if (templates[name] && v.childElementCount === 0) {
+      v.appendChild(templates[name].content.cloneNode(true));
+    }
+
+    // allow your existing JS to re-bind if it uses DOMContentLoaded assumptions
+    window.dispatchEvent(new Event("mmoc:viewchange"));
+  };
+
+  const route = () => {
+    const hash = (location.hash || "#gate").replace("#", "");
+    mount(hash);
+  };
+
+  window.addEventListener("hashchange", route);
+  route();
+
+  // Make "go to app.html" actions route internally instead:
+  window.MMOC_ROUTE = (hash) => { location.hash = "#" + hash; };
+
+})();
+</script>
+  
 </body>
