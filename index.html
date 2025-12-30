@@ -199,15 +199,11 @@
     closeNav();
 
     // Adjust these to match your actual pages:
-    if (go === "app") window.location.href = "app.html";
-    if (go === "roid") {
-      // If roid boy is inside app.html, just go there + anchor later
-      window.location.href = "app.html#roidboy";
-    }
-    if (go === "library") window.location.href = "library.html";
-    if (go === "review") window.location.href = "review.html";
-    if (go === "settings") window.location.href = "library.html#settings"; // placeholder
-  });
+if (go === "app")      location.hash = "#today";
+if (go === "roid")     location.hash = "#roidboy";
+if (go === "library")  location.hash = "#library";
+if (go === "review")   location.hash = "#review";
+if (go === "settings") location.hash = "#settings";
 
   // ESC closes (desktop)
   window.addEventListener("keydown", (e) => {
