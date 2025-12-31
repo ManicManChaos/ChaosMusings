@@ -1,4 +1,4 @@
-<!doctype html>
+<!doctype html> 
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -99,7 +99,21 @@
       <section class="view card" id="view-today">
         <h2>Today</h2>
         <p class="muted">Your daily entry lives here. (This is already wired — we’ll enhance after Floating Sections.)</p>
+<!-- Floating Sections (drop-in) -->
+<details class="floatable" data-fkey="dailyEntry">
+  <summary>
+    Floating Section: Daily Entry
+    <span class="floatTools">
+      <button type="button" class="glyphBtn" data-act="float" aria-label="Float / Dock">⌁</button>
+      <button type="button" class="glyphBtn" data-act="pin" aria-label="Pin / Unpin">⟐</button>
+      <button type="button" class="glyphBtn" data-act="spark" aria-label="Sparkle">✦</button>
+      <button type="button" class="glyphBtn" data-act="reset" aria-label="Reset section">⟲</button>
+    </span>
+  </summary>
 
+  <!-- Put the fields you want to float INSIDE this details block -->
+  <!-- MOVE (cut/paste) your Date / Title / Confession fields into here after you confirm it renders -->
+</details>
         <div class="field">
           <label>Date</label>
           <input type="date" id="entryDate" />
