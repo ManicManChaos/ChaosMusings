@@ -423,3 +423,12 @@ body.navOpen .navScrim{display:block}
 
 /* remove any helper/white text if present */
 .helpText, .helperText, .hint, .hintText{display:none !important}
+
+/* ===== HARD GATE EXIT (FINAL OVERRIDE) ===== */
+body.entered #gateWrap,
+body.entered .gateWrap,
+body.entered .gateCard {
+  display: none !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
