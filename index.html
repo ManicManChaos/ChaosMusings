@@ -1,37 +1,29 @@
-<!doctype html> 
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Manic Musings of Chaos</title>
-
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#050608" />
-  <link rel="icon" href="favicon.png" />
-  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
-
   <link rel="stylesheet" href="styles.css" />
 </head>
 
-<body class="mm">
+<body class="gateBody">
 
-  <!-- LEFT SWIPE HOTZONE (opens nav) -->
-  <div class="leftHotzone" id="leftHotzone" aria-hidden="true"></div>
+  <!-- Swipe hotzone (left edge) -->
+  <div class="leftHotzone" aria-hidden="true"></div>
 
-  <!-- NAV SCRIM -->
-  <div class="navScrim" id="navScrim" hidden></div>
+  <!-- Scrim for side plane -->
+  <div class="navScrim" aria-hidden="true" style="display:none"></div>
 
-  <!-- STAGE-MANAGER STYLE SIDE PLANE -->
-  <aside class="sidePlane" id="sidePlane" aria-label="Navigation">
+  <!-- Side Plane (stage-manager style) -->
+  <aside class="sidePlane" aria-label="Navigation plane">
     <div class="sidePlaneInner">
-      <!-- order: Today, Floating, Roid, Library, Review, Settings -->
-      <button class="glyphNav" data-go="today" aria-label="Today">📖</button>
-      <button class="glyphNav" data-go="floating" aria-label="Floating Sections">⟡</button>
-      <button class="glyphNav" data-go="roid" aria-label="Roid Boy">🜃</button>
-      <button class="glyphNav" data-go="library" aria-label="Library">🗂️</button>
-      <button class="glyphNav" data-go="review" aria-label="Year in Review">✨</button>
-      <button class="glyphNav" data-go="settings" aria-label="Settings">⚙️</button>
+      <button class="glyphNav" type="button" data-go="today" aria-label="Today">📖</button>
+      <button class="glyphNav" type="button" data-go="library" aria-label="Library">📚</button>
+      <button class="glyphNav" type="button" data-go="review" aria-label="Review">🜂</button>
+      <button class="glyphNav" type="button" data-go="roid" aria-label="Roid Boy">🏋️</button>
+      <button class="glyphNav" type="button" data-go="systems" aria-label="Systems">🗺️</button>
+      <button class="glyphNav" type="button" data-go="settings" aria-label="Settings">⚙︎</button>
     </div>
   </aside>
 
@@ -41,6 +33,7 @@
   <main class="gateWrap" id="gateWrap" role="main" aria-label="Manic Musings of Chaos — Entrance">
     <section class="gateCard">
       <div class="gateStage" id="gateStage" aria-label="Spellbook Gate">
+
         <!-- CLOSED -->
         <img
           id="coverClosed"
@@ -63,20 +56,15 @@
         <button class="sigilBtn" id="sigilBtn" type="button" aria-label="Open the book">
           <span class="sigilRing" aria-hidden="true"></span>
           <span class="sigilCore" aria-hidden="true"></span>
-
-          <!-- 4 elements glyphs (no word “cast”) -->
-          <span class="sigilText" aria-label="Earth, Fire, Water, Air">🜃 △ ▽ 🜁</span>
+          <!-- No words, glyph feel -->
+          <span class="sigilText" aria-label="Earth, Fire, Water, Air">▽ △ ▽ △</span>
         </button>
 
-        <!-- SPARKLES -->
         <div class="sparkleLayer" id="sparkleLayer" aria-hidden="true"></div>
-
-        <!-- CINEMATIC FADE -->
         <div class="gateFade" id="gateFade" aria-hidden="true"></div>
       </div>
 
-      <!-- TITLE PLATE -->
-      <div class="gateTitlePlate" id="gateTitlePlate">
+      <div class="gateTitlePlate">
         <div class="gateTitle">MANIC MUSINGS<br/>OF CHAOS</div>
         <div class="gateSub">tell no lies</div>
       </div>
@@ -84,36 +72,26 @@
   </main>
 
   <!-- =========================
-       APP SHELL (INSIDE)
+       APP VIEWS
        ========================= -->
-  <main class="appShell" id="appShell" hidden>
-    <header class="topbar">
-      <button class="miniBtn" id="openNavBtn" type="button" aria-label="Open navigation">☰</button>
-      <div class="brand">Manic Musings</div>
-      <button class="miniBtn" id="goHomeBtn" type="button" aria-label="Go to Today">📖</button>
-    </header>
+  <div class="container">
 
-    <div class="container">
+    <!-- TODAY -->
+    <section class="view card" id="view-today" hidden>
+      <h2>Today</h2>
+      <p class="muted">Floating section demo is live. Try the glyph buttons in the summary.</p>
 
-      <!-- VIEW: TODAY -->
-      <section class="view card" id="view-today">
-        <h2>Today</h2>
-        <p class="muted">Your daily entry lives here. (This is already wired — we’ll enhance after Floating Sections.)</p>
-<!-- Floating Sections (drop-in) -->
-<details class="floatable" data-fkey="dailyEntry" open>
-  <summary>
-    Floating Section: Daily Entry
-    <span class="floatTools">
-      <button type="button" class="glyphBtn" data-act="float" aria-label="Float / Dock">⌁</button>
-      <button type="button" class="glyphBtn" data-act="pin" aria-label="Pin / Unpin">⟐</button>
-      <button type="button" class="glyphBtn" data-act="spark" aria-label="Sparkle">✦</button>
-      <button type="button" class="glyphBtn" data-act="reset" aria-label="Reset section">⟲</button>
-    </span>
-  </summary>
+      <details class="floatable" data-fkey="dailyEntry" open>
+        <summary>
+          Floating Section: Daily Entry
+          <span class="floatTools">
+            <button type="button" class="glyphBtn" data-act="float" aria-label="Float / Dock">⧉</button>
+            <button type="button" class="glyphBtn" data-act="pin" aria-label="Pin / Unpin">⌁</button>
+            <button type="button" class="glyphBtn" data-act="spark" aria-label="Sparkle">✶</button>
+            <button type="button" class="glyphBtn" data-act="reset" aria-label="Reset">⟲</button>
+          </span>
+        </summary>
 
-  <!-- Put the fields you want to float INSIDE this details block -->
-  <!-- MOVE (cut/paste) your Date / Title / Confession fields into here after you confirm it renders -->
-</details>
         <div class="field">
           <label>Date</label>
           <input type="date" id="entryDate" />
@@ -126,147 +104,48 @@
 
         <div class="field">
           <label>So here’s the thing…</label>
-          <textarea id="confession" rows="8" placeholder="Write it raw. We’ll structure it later."></textarea>
+          <textarea id="confession" rows="8" placeholder="We’ll structure it later."></textarea>
         </div>
 
         <div class="actions">
-          <button class="btn gold" id="saveEntryBtn" type="button">Save</button>
-          <button class="btn" id="sparkleBtn" type="button">Sparkle</button>
+          <button class="btn gold" type="button" id="saveEntryBtn">Save</button>
+          <button class="btn" type="button" id="clearEntryBtn">Clear</button>
         </div>
-      </section>
+      </details>
+    </section>
 
-      <!-- VIEW: FLOATING SECTIONS (NEXT) -->
-      <section class="view card" id="view-floating" hidden>
-        <h2>Floating Sections</h2>
-        <p class="muted">
-          Next build: draggable / floating ritual cards (Work, Love, Chaos, Body, Money, etc.).
-        </p>
-        <div class="item">
-          <strong>Planned</strong>
-          Floating panels + snap zones + “pin to day” + glow state.
-        </div>
-      </section>
+    <!-- LIBRARY -->
+    <section class="view card" id="view-library" hidden>
+      <h2>Library</h2>
+      <p class="muted">Placeholder view.</p>
+    </section>
 
-      <!-- VIEW: ROID BOY (AFTER FLOATING) -->
-      <section class="view card" id="view-roid" hidden>
-        <h2>Roid Boy</h2>
-        <p class="muted">
-          Placeholder. Next after Floating Sections: full pop-out character expansion + layered scenes.
-        </p>
-        <div class="item">
-          <strong>Planned</strong>
-          Pop-out overlay + profile + “ritual prompts” + animation.
-        </div>
-      </section>
+    <!-- REVIEW -->
+    <section class="view card" id="view-review" hidden>
+      <h2>Review</h2>
+      <p class="muted">Placeholder view.</p>
+    </section>
 
-      <!-- VIEW: LIBRARY -->
-      <section class="view card" id="view-library" hidden>
-        <h2>Library</h2>
-        <p class="muted">All entries. Grouped by month/era. (We’ll wire the real data store later.)</p>
-        <div class="list" id="libraryList">
-          <div class="item"><strong>Example</strong><span class="muted">No entries loaded yet.</span></div>
-        </div>
-      </section>
+    <!-- ROID BOY -->
+    <section class="view card" id="view-roidboy" hidden>
+      <h2>Roid Boy</h2>
+      <p class="muted">Placeholder view for the pop-out build.</p>
+    </section>
 
-      <!-- VIEW: YEAR IN REVIEW -->
-      <section class="view card" id="view-review" hidden>
-        <h2>Year in Review</h2>
-        <p class="muted">
-          Next milestones: location auto-capture (GPS), photo recap, “video year wrap”.
-        </p>
+    <!-- SYSTEMS -->
+    <section class="view card" id="view-systems" hidden>
+      <h2>Book of Systems</h2>
+      <p class="muted">Placeholder for system map + legend later.</p>
+    </section>
 
-        <div class="bar"><div id="cycleFill"></div></div>
-      </section>
+    <!-- SETTINGS -->
+    <section class="view card" id="view-settings" hidden>
+      <h2>Settings</h2>
+      <p class="muted">Placeholder view.</p>
+    </section>
 
-      <!-- VIEW: SETTINGS -->
-      <section class="view card" id="view-settings" hidden>
-        <h2>Settings</h2>
-        <p class="muted">Next milestones: Passkey + Postmark + calendar + socials.</p>
-
-        <details>
-          <summary>Planned Integrations</summary>
-          <div class="list" style="margin-top:10px">
-            <div class="item"><strong>Passkey / Auth</strong><span class="muted">Supabase passkeys / secure login</span></div>
-            <div class="item"><strong>Email (Postmark)</strong><span class="muted">send receipts, exports, confirmations</span></div>
-            <div class="item"><strong>Outlook Calendar</strong><span class="muted">connect + push “ritual events”</span></div>
-            <div class="item"><strong>Instagram / X / Facebook</strong><span class="muted">share snippets + year recap</span></div>
-            <div class="item"><strong>Location</strong><span class="muted">GPS auto-populate + places in recap</span></div>
-          </div>
-        </details>
-      </section>
-
-    </div>
-  </main>
+  </div>
 
   <script src="app.js"></script>
-  <script>
-  // ===== HARD ROUTER (forces views to show/hide correctly) =====
-  const views = Array.from(document.querySelectorAll('.view'));
-
-  function showView(name){
-    views.forEach(v => v.hidden = (v.id !== `view-${name}`));
-  }
-
-  function route(){
-    const hash = (location.hash || '#gate').replace('#','');
-    if (hash === 'today') return showView('today');
-    if (hash === 'library') return showView('library');
-    if (hash === 'review') return showView('review');
-    // default = gate
-    return showView('gate');
-  }
-
-  window.addEventListener('hashchange', route);
-  route();
-
-  // ===== Gate button should enter Today =====
-  const sigilBtn = document.getElementById('sigilBtn');
-  if (sigilBtn){
-    sigilBtn.addEventListener('click', () => {
-      location.hash = '#today';
-    });
-  }
-</script>
-<!-- ALL YOUR HTML ABOVE -->
-<!-- Gate -->
-<main class="gateWrap" id="gateWrap" role="main">
-  ...
-</main>
-
-<!-- Today / Library / Review views -->
-<section class="view card" id="view-today">...</section>
-<section class="view card" id="view-library">...</section>
-<section class="view card" id="view-review">...</section>
-
-<section class="view" id="view-gate">
-<script>
-  const views = document.querySelectorAll('.view');
-
-  function showView(name){
-    views.forEach(v => v.hidden = v.id !== `view-${name}`);
-  }
-
-  function route(){
-    const hash = location.hash.replace('#','') || 'gate';
-    if (hash === 'today') return showView('today');
-    if (hash === 'library') return showView('library');
-    if (hash === 'review') return showView('review');
-
-    // default: gate visible, others hidden
-    views.forEach(v => v.hidden = true);
-    document.getElementById('gateWrap').hidden = false;
-  }
-
-  window.addEventListener('hashchange', route);
-  route();
-
-  // Gate → Today
-  const sigilBtn = document.getElementById('sigilBtn');
-  if (sigilBtn){
-    sigilBtn.addEventListener('click', () => {
-      location.hash = '#today';
-    });
-  }
-</script>=
 </body>
 </html>
