@@ -277,3 +277,23 @@ select option{color:#111}
   .monthHeader{flex-direction:column;align-items:flex-start}
   .monthEra{width:100%;min-width:0}
 }
+
+/* ===== CRITICAL INTERACTION FIX ===== */
+
+/* Ensure gate layers never block the sigil */
+.gateStage,
+.gateImg,
+.gateFade {
+  pointer-events: none;
+}
+
+/* Sigil button must always receive input */
+.sigilBtn {
+  pointer-events: auto !important;
+  z-index: 20;
+}
+
+/* Safety: allow tapping on iOS */
+.sigilBtn * {
+  pointer-events: none;
+}
