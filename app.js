@@ -1,487 +1,428 @@
-/* Manic Musings of Chaos – Frontend logic (offline, localStorage)
-   - Autosave one entry per date
-   - Dropdown options are enforced here
-   - Floating Sections (Chaos Board): float, pin, sparkle, reset
+/* app.js — DROP-IN (replace the whole file)
+   Manic Musings of Chaos — Gate → Views + Floating Sections + Side Plane Nav
 */
 (() => {
-  const STORAGE_KEY = "mmoc_entries_v3";
-  const FLOAT_KEY = "_float";
+  "use strict";
 
-  const $ = (id) => document.getElementById(id);
+  // ---------- tiny utils ----------
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 
-  const todayISO = () => {
-    const d = new Date();
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    return `${y}-${m}-${day}`;
-  };
-
-  const formatHumanDate = (iso) => {
-    try {
-      const d = new Date(iso + "T00:00:00");
-      return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
-    } catch {
-      return iso || "";
-    }
-  };
-
-  const readEntries = () => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      const arr = raw ? JSON.parse(raw) : [];
-      return Array.isArray(arr) ? arr : [];
-    } catch {
-      return [];
-    }
-  };
-
-  const writeEntries = (arr) => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
-  };
-
-  const upsertEntry = (entry) => {
-    const entries = readEntries();
-    const ix = entries.findIndex(e => e && e.date === entry.date);
-    if (ix >= 0) entries[ix] = entry;
-    else entries.unshift(entry);
-    entries.sort((a,b) => (b.date || "").localeCompare(a.date || ""));
-    writeEntries(entries);
-  };
-
-  const getEntryByDate = (dateISO) => readEntries().find(e => e && e.date === dateISO);
-
-  const getFormState = () => {
-    const state = {};
-    document.querySelectorAll("input, select, textarea").forEach(el => {
-      if (!el.id) return;
-      if (el.type === "file") {
-        state[el.id] = { fileCount: el.files ? el.files.length : 0 };
-      } else if (el.type === "checkbox" || el.type === "radio") {
-        state[el.id] = !!el.checked;
-      } else {
-        state[el.id] = el.value ?? "";
+  const LS = {
+    get(key, fallback = null) {
+      try {
+        const v = localStorage.getItem(key);
+        return v == null ? fallback : JSON.parse(v);
+      } catch {
+        return fallback;
       }
-    });
-    return state;
+    },
+    set(key, value) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch {}
+    },
+    del(key) {
+      try {
+        localStorage.removeItem(key);
+      } catch {}
+    }
   };
 
-  const applyFormState = (state) => {
-    if (!state) return;
-    Object.keys(state).forEach((id) => {
-      const el = $(id);
-      if (!el) return;
-      if (el.type === "file") return;
-      if (el.type === "checkbox" || el.type === "radio") el.checked = !!state[id];
-      else el.value = (typeof state[id] === "string" || typeof state[id] === "number") ? String(state[id]) : "";
-    });
+  // ---------- routing (hash -> view) ----------
+  const ROUTES = {
+    "#today": "view-today",
+    "#library": "view-library",
+    "#review": "view-review",
+    "#roidboy": "view-roidboy",
+    "#systems": "view-systems",
+    "#settings": "view-settings"
   };
 
-  const ensureOptions = () => {
-    // Day
-    const day = $("day");
-    if (day && day.tagName === "SELECT") {
-      const days = ["","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
-      day.innerHTML = days.map((v,i)=> i===0 ? `<option value="">Select…</option>` : `<option value="${v}">${v}</option>`).join("");
+  function showViewFromHash() {
+    const hash = window.location.hash || "#today";
+    const id = ROUTES[hash] || ROUTES["#today"];
+
+    // if you have a gate section, hide it after entry
+    document.body.classList.add("entered");
+
+    const allViews = $$(".view");
+    if (allViews.length) {
+      allViews.forEach(v => (v.hidden = v.id !== id));
     }
 
-    // Mood (your final list)
-    const mood = $("mood");
-    if (mood) {
-      const moods = [
-        "",
-        "Horny for Peace",
-        "Feral & Focused",
-        "Violently Calm",
-        "Sexually Frustrated but Contained",
-        "Plotting With a Semi",
-        "Muscle Memory and Trauma",
-        "Built Like a Threat",
-        "Calm Like a Loaded Weapon",
-        "Hard Body, Closed Heart",
-        "Wanting Touch, Refusing Attachment",
-        "Desire Without Permission",
-        "Attracted but Unavailable",
-        "Crushing Quietly",
-        "Sexually Awake, Emotionally Armed",
-        "Detached for My Own Safety",
-        "Heart Locked, Body Open",
-        "Missing Someone I Shouldn’t",
-        "Grief With Good Posture",
-        "Sad, Not Weak",
-        "Petty but Correct",
-        "Annoyed by Everyone",
-        "Do Not Test Me",
-        "Observing Before Engaging",
-        "Silence Is Strategic",
-        "Hyperfocused and Unreachable",
-        "Overstimulated but Managing",
-        "Brain on Fire",
-        "Mask On, Emotions Offline",
-        "Unmasked and Exposed",
-        "Indifferent and Relieved",
-        "Regulated Enough",
-        "Resting in My Body",
-        "Safe for Now",
-        "Still Standing"
-      ];
-      mood.innerHTML = moods.map((v,i)=> i===0 ? `<option value="">Select…</option>` : `<option value="${v}">${v}</option>`).join("");
-    }
+    // scroll to top when switching
+    try { window.scrollTo({ top: 0, behavior: "instant" }); } catch { window.scrollTo(0, 0); }
+  }
 
-    // Era (optional)
-    const era = $("era");
-    if (era) {
-      const eras = [
-        "",
-        "Villain Era",
-        "Whore4More",
-        "Horny for Peace",
-        "Muscle Memory and Trauma",
-        "Plotting Season",
-        "Built, Not Broken",
-        "Hard Body, Harder Boundaries",
-        "Flesh and Willpower",
-        "Dangerous Crush Season",
-        "Attachment Without Illusions",
-        "Wanting Without Chasing",
-        "Letting Someone Matter (Carefully)",
-        "Post-Heartbreak Control Phase",
-        "Emotional Scar Tissue",
-        "Grief Without Collapse",
-        "Detachment Training",
-        "Gym God Ascension",
-        "Strength Without Apology",
-        "Discipline Over Desire",
-        "Power Stabilization",
-        "Hyperfocus Arc",
-        "Manic Clarity Window",
-        "Burnout Containment",
-        "Re-Regulation Protocol",
-        "Silence as Strategy",
-        "No Negotiation Period",
-        "Energy Preservation Mode",
-        "Nothing to Prove",
-        "Knowing Exactly Who I Am"
-      ];
-      era.innerHTML = eras.map((v,i)=> i===0 ? `<option value="">(optional)</option>` : `<option value="${v}">${v}</option>`).join("");
-    }
+  function go(hash) {
+    window.location.hash = hash;
+    showViewFromHash();
+  }
 
-    // Singleness Level
-    const rel = $("relationshipStatus");
-    if (rel) {
-      const rels = [
-        "",
-        "Single and Self-Controlled",
-        "Single, Not Looking",
-        "Single but Curious",
-        "Crushing Quietly",
-        "Mutual Tension, No Labels",
-        "Attracted but Guarded",
-        "Emotionally Involved",
-        "Physically Attached, Emotionally Cautious",
-        "Letting Someone In (Slowly)",
-        "Complicated on Purpose",
-        "Unavailable by Design",
-        "Attached Against My Will",
-        "Heart Closed for Maintenance",
-        "Recovering From Someone",
-        "Detaching With Intent",
-        "Indifferent and Relieved",
-        "Choosing Myself"
-      ];
-      rel.innerHTML = rels.map((v,i)=> i===0 ? `<option value="">Select…</option>` : `<option value="${v}">${v}</option>`).join("");
-    }
+  // ---------- Gate (intro) ----------
+  function initGate() {
+    const sigilBtn = $("#sigilBtn");
+    const coverClosed = $("#coverClosed");
+    const coverOpen = $("#coverOpen");
+    const gateFade = $("#gateFade");
 
-    // Gym time selects (5-min increments)
-    const timeSelects = ["arriveTime","gymArrive","timeAtGym","timeSpent","gymDuration","cardioDuration"];
-    const timeOptions = [{ v:"", t:"Select…" }];
-    for (let h=0; h<24; h++){
-      for (let m=0; m<60; m+=5){
-        const hh = String(h).padStart(2,"0");
-        const mm = String(m).padStart(2,"0");
-        const label = `${(h%12)||12}:${mm} ${h<12?"AM":"PM"}`;
-        timeOptions.push({ v:`${hh}:${mm}`, t: label });
-      }
-    }
-    timeSelects.forEach(id=>{
-      const el = $(id);
-      if (el && el.tagName==="SELECT") {
-        el.innerHTML = timeOptions.map(o=> `<option value="${o.v}">${o.t}</option>`).join("");
-      }
+    if (!sigilBtn) return; // gate not on this page, ok
+
+    let pressed = false;
+
+    sigilBtn.addEventListener("click", () => {
+      if (pressed) return;
+      pressed = true;
+
+      sigilBtn.classList.add("sigilPressed");
+      if (gateFade) gateFade.classList.add("fadeOn");
+
+      // spark burst
+      sparkleBurst(26);
+
+      // swap images
+      if (coverClosed) coverClosed.classList.remove("isOn");
+      if (coverOpen) coverOpen.classList.add("isOn");
+
+      // land on Today
+      setTimeout(() => {
+        go("#today");
+      }, 650);
     });
 
-    // Weight select (lb)
-    const weight = $("weight");
-    if (weight && weight.tagName === "SELECT") {
-      const opts = [`<option value="">Select…</option>`];
-      for (let w=80; w<=350; w++) opts.push(`<option value="${w}">${w} lb</option>`);
-      weight.innerHTML = opts.join("");
+    // If user loads directly into a view, skip gate visuals
+    if (window.location.hash && window.location.hash !== "#") {
+      // keep gate visible if they’re on gate, otherwise we allow the routing to hide it
+      showViewFromHash();
     }
-  };
+  }
 
-  const setDateDefaults = () => {
-    const dateEl = $("date");
-    if (dateEl && !dateEl.value) dateEl.value = todayISO();
-    const dateDisplay = $("dateDisplay");
-    if (dateDisplay) dateDisplay.textContent = formatHumanDate(dateEl ? dateEl.value : todayISO());
-  };
+  // ---------- Side Plane Nav (stage-manager style) ----------
+  function initSidePlane() {
+    const plane = $(".sidePlane");
+    const scrim = $(".navScrim");
+    const hotzone = $(".leftHotzone");
 
-  let saveTimer = null;
-  const scheduleSave = () => {
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => {
-      const dateEl = $("date");
-      if (!dateEl) return;
-      if (!dateEl.value) dateEl.value = todayISO();
+    if (!plane || !scrim || !hotzone) return;
 
-      const entry = {
-        date: dateEl.value,
-        title: ($("title") && $("title").value) ? $("title").value.trim() : "",
-        day: ($("day") && $("day").value) ? $("day").value : "",
-        mood: ($("mood") && $("mood").value) ? $("mood").value : "",
-        era: ($("era") && $("era").value) ? $("era").value : "",
-        relationshipStatus: ($("relationshipStatus") && $("relationshipStatus").value) ? $("relationshipStatus").value : "",
-        updatedAt: Date.now(),
-        data: getFormState()
-      };
+    const openNav = () => document.body.classList.add("navOpen");
+    const closeNav = () => document.body.classList.remove("navOpen");
 
-      upsertEntry(entry);
+    // click scrim to close
+    scrim.addEventListener("click", closeNav);
 
-      const status = $("saveStatus");
-      if (status) {
-        status.textContent = "Saved ✓";
-        status.style.opacity = "1";
-        setTimeout(() => { status.style.opacity = "0.65"; }, 900);
-      }
-    }, 450);
-  };
+    // ESC closes (desktop)
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeNav();
+    });
 
-  const loadFromQueryOrStorage = () => {
-    const params = new URLSearchParams(location.search);
-    const dateFromQuery = params.get("date");
-    const dateEl = $("date");
-    if (dateEl) dateEl.value = dateFromQuery || dateEl.value || todayISO();
+    // glyph buttons inside plane
+    $$(".glyphNav", plane).forEach(btn => {
+      btn.addEventListener("click", () => {
+        const goTo = btn.getAttribute("data-go") || "";
+        closeNav();
 
-    const entry = getEntryByDate(dateEl ? dateEl.value : todayISO());
-    if (entry && entry.data) applyFormState(entry.data);
-
-    setDateDefaults();
-  };
-
-  const wireAutosave = () => {
-    document.body.addEventListener("input", scheduleSave, { passive: true });
-    document.body.addEventListener("change", scheduleSave, { passive: true });
-
-    const resetBtn = $("resetTodayBtn");
-    if (resetBtn) {
-      resetBtn.addEventListener("click", () => {
-        const dateEl = $("date");
-        if (dateEl) dateEl.value = todayISO();
-        document.querySelectorAll("input, select, textarea").forEach(el => {
-          if (!el.id) return;
-          if (el.id === "date") return;
-          if (el.type === "file") return;
-          if (el.type === "checkbox" || el.type === "radio") el.checked = false;
-          else el.value = "";
-        });
-        setDateDefaults();
-        scheduleSave();
+        // map to hashes
+        if (goTo === "today") return go("#today");
+        if (goTo === "library") return go("#library");
+        if (goTo === "review") return go("#review");
+        if (goTo === "roid") return go("#roidboy");
+        if (goTo === "systems") return go("#systems");
+        if (goTo === "settings") return go("#settings");
       });
-    }
-  };
-
-  /* =========================
-     FLOATING SECTIONS (Chaos Board)
-     ========================= */
-
-  const getEntryFloatState = () => {
-    const dateEl = $("date");
-    const iso = dateEl ? dateEl.value : todayISO();
-    const entry = getEntryByDate(iso) || { date: iso, data: {} };
-    if (!entry.data) entry.data = {};
-    if (!entry.data[FLOAT_KEY]) entry.data[FLOAT_KEY] = {};
-    return { entry, floats: entry.data[FLOAT_KEY], iso };
-  };
-
-  const setFloatStateFor = (fkey, patch) => {
-    const { entry, floats } = getEntryFloatState();
-    floats[fkey] = { ...(floats[fkey] || {}), ...patch };
-    entry.data[FLOAT_KEY] = floats;
-    upsertEntry(entry);
-  };
-
-  const applyFloatStates = () => {
-    const { floats } = getEntryFloatState();
-    document.querySelectorAll(".floatable[data-fkey]").forEach(sec => {
-      const fkey = sec.getAttribute("data-fkey");
-      const st = floats[fkey];
-
-      sec.classList.remove("isFloating","isPinned");
-      sec.style.left = "";
-      sec.style.top  = "";
-
-      if (!st) return;
-
-      if (st.mode === "floating" || st.mode === "pinned") {
-        sec.classList.add("isFloating");
-        if (st.mode === "pinned") sec.classList.add("isPinned");
-
-        const x = Number(st.x ?? 24);
-        const y = Number(st.y ?? 110);
-        sec.style.left = `${x}px`;
-        sec.style.top  = `${y}px`;
-      }
     });
-  };
 
-  const sparkleAt = (x, y, n = 12) => {
-    for (let i = 0; i < n; i++) {
+    // swipe to open/close (iPad friendly)
+    let startX = 0;
+    let startY = 0;
+    let tracking = false;
+
+    const onStart = (e) => {
+      const t = e.touches ? e.touches[0] : e;
+      startX = t.clientX;
+      startY = t.clientY;
+      tracking = true;
+    };
+
+    const onMove = (e) => {
+      if (!tracking) return;
+      const t = e.touches ? e.touches[0] : e;
+      const dx = t.clientX - startX;
+      const dy = t.clientY - startY;
+      if (Math.abs(dx) < 16 || Math.abs(dx) < Math.abs(dy)) return;
+
+      if (dx > 36) openNav();
+      if (dx < -36) closeNav();
+      tracking = false;
+    };
+
+    const onEnd = () => { tracking = false; };
+
+    hotzone.addEventListener("touchstart", onStart, { passive: true });
+    hotzone.addEventListener("touchmove", onMove, { passive: true });
+    hotzone.addEventListener("touchend", onEnd, { passive: true });
+
+    // also allow swipe anywhere while nav is open (to close)
+    document.addEventListener("touchstart", (e) => {
+      if (!document.body.classList.contains("navOpen")) return;
+      onStart(e);
+    }, { passive: true });
+    document.addEventListener("touchmove", (e) => {
+      if (!document.body.classList.contains("navOpen")) return;
+      onMove(e);
+    }, { passive: true });
+    document.addEventListener("touchend", onEnd, { passive: true });
+  }
+
+  // ---------- Floating Sections Engine ----------
+  // Model:
+  // <details class="floatable" data-fkey="dailyEntry">
+  //   <summary> ... <span class="floatTools">
+  //     <button class="glyphBtn" data-act="float">...</button>
+  //     <button class="glyphBtn" data-act="pin">...</button>
+  //     <button class="glyphBtn" data-act="spark">...</button>
+  //     <button class="glyphBtn" data-act="reset">...</button>
+  //   </span></summary>
+  //   ... content ...
+  // </details>
+  //
+  // State:
+  // localStorage "float:<fkey>" => { floating:boolean, pinned:boolean, x:number, y:number }
+  function initFloatingSections() {
+    const blocks = $$(".floatable[data-fkey]");
+    if (!blocks.length) return;
+
+    blocks.forEach(details => {
+      const fkey = details.getAttribute("data-fkey");
+      if (!fkey) return;
+
+      const stKey = `float:${fkey}`;
+
+      // restore
+      const st = LS.get(stKey, null);
+      if (st && st.floating) {
+        applyFloating(details, st);
+      }
+
+      // buttons
+      const tools = $(".floatTools", details);
+      if (tools) {
+        tools.addEventListener("click", (e) => {
+          const btn = e.target.closest(".glyphBtn");
+          if (!btn) return;
+
+          e.preventDefault();
+          e.stopPropagation();
+
+          const act = btn.getAttribute("data-act");
+          if (act === "float") toggleFloat(details, stKey);
+          if (act === "pin") togglePin(details, stKey);
+          if (act === "spark") sparkleBurst(18);
+          if (act === "reset") resetFloat(details, stKey);
+        });
+      }
+
+      // drag handle = summary (only when floating AND not pinned)
+      const summary = $("summary", details);
+      if (summary) enableDrag(details, summary, stKey);
+    });
+  }
+
+  function currentState(details, stKey) {
+    const fallback = { floating: false, pinned: false, x: 16, y: 140 };
+    const st = LS.get(stKey, fallback) || fallback;
+    return { ...fallback, ...st };
+  }
+
+  function toggleFloat(details, stKey) {
+    const st = currentState(details, stKey);
+    st.floating = !st.floating;
+
+    if (st.floating) {
+      // default position near center-ish if never set
+      if (typeof st.x !== "number" || typeof st.y !== "number") {
+        st.x = 16;
+        st.y = 140;
+      }
+      applyFloating(details, st);
+    } else {
+      removeFloating(details);
+      st.pinned = false;
+    }
+
+    LS.set(stKey, st);
+  }
+
+  function togglePin(details, stKey) {
+    const st = currentState(details, stKey);
+    // pin only makes sense if floating
+    if (!st.floating) {
+      st.floating = true;
+      applyFloating(details, st);
+    }
+    st.pinned = !st.pinned;
+
+    details.classList.toggle("isPinned", st.pinned);
+    LS.set(stKey, st);
+  }
+
+  function resetFloat(details, stKey) {
+    removeFloating(details);
+    details.classList.remove("isPinned");
+    LS.del(stKey);
+  }
+
+  function applyFloating(details, st) {
+    details.classList.add("isFloating");
+    details.classList.toggle("isPinned", !!st.pinned);
+
+    // Use fixed positioning so it floats over any view
+    details.style.position = "fixed";
+    details.style.zIndex = "1200";
+    details.style.left = "0px";
+    details.style.top = "0px";
+
+    // clamp within screen
+    const pad = 10;
+    const vw = window.innerWidth || 1024;
+    const vh = window.innerHeight || 768;
+
+    const rect = details.getBoundingClientRect();
+    const maxX = vw - rect.width - pad;
+    const maxY = vh - rect.height - pad;
+
+    const x = clamp(st.x ?? 16, pad, Math.max(pad, maxX));
+    const y = clamp(st.y ?? 140, pad, Math.max(pad, maxY));
+
+    details.style.transform = `translate(${x}px, ${y}px)`;
+  }
+
+  function removeFloating(details) {
+    details.classList.remove("isFloating", "isPinned");
+    details.style.position = "";
+    details.style.zIndex = "";
+    details.style.left = "";
+    details.style.top = "";
+    details.style.transform = "";
+  }
+
+  function enableDrag(details, handleEl, stKey) {
+    let dragging = false;
+    let startX = 0, startY = 0;
+    let baseX = 0, baseY = 0;
+
+    const parseXY = () => {
+      const st = currentState(details, stKey);
+      return { x: st.x ?? 16, y: st.y ?? 140 };
+    };
+
+    const pointerDown = (e) => {
+      // Only drag if floating and NOT pinned
+      const st = currentState(details, stKey);
+      if (!st.floating || st.pinned) return;
+
+      // Don’t drag when tapping the tool buttons
+      if (e.target.closest(".floatTools")) return;
+
+      dragging = true;
+
+      const p = e.touches ? e.touches[0] : e;
+      startX = p.clientX;
+      startY = p.clientY;
+
+      const cur = parseXY();
+      baseX = cur.x;
+      baseY = cur.y;
+
+      details.classList.add("dragging");
+    };
+
+    const pointerMove = (e) => {
+      if (!dragging) return;
+
+      const p = e.touches ? e.touches[0] : e;
+      const dx = p.clientX - startX;
+      const dy = p.clientY - startY;
+
+      const nextX = baseX + dx;
+      const nextY = baseY + dy;
+
+      // clamp
+      const pad = 10;
+      const vw = window.innerWidth || 1024;
+      const vh = window.innerHeight || 768;
+      const rect = details.getBoundingClientRect();
+      const maxX = vw - rect.width - pad;
+      const maxY = vh - rect.height - pad;
+
+      const x = clamp(nextX, pad, Math.max(pad, maxX));
+      const y = clamp(nextY, pad, Math.max(pad, maxY));
+
+      details.style.transform = `translate(${x}px, ${y}px)`;
+
+      const st = currentState(details, stKey);
+      st.x = x;
+      st.y = y;
+      st.floating = true;
+      LS.set(stKey, st);
+    };
+
+    const pointerUp = () => {
+      if (!dragging) return;
+      dragging = false;
+      details.classList.remove("dragging");
+    };
+
+    // touch + mouse
+    handleEl.addEventListener("touchstart", pointerDown, { passive: true });
+    window.addEventListener("touchmove", pointerMove, { passive: true });
+    window.addEventListener("touchend", pointerUp, { passive: true });
+
+    handleEl.addEventListener("mousedown", pointerDown);
+    window.addEventListener("mousemove", pointerMove);
+    window.addEventListener("mouseup", pointerUp);
+  }
+
+  // ---------- sparkles ----------
+  function sparkleBurst(count = 16) {
+    const vw = window.innerWidth || 1024;
+    const vh = window.innerHeight || 768;
+
+    // burst from center-ish
+    const cx = vw * 0.5;
+    const cy = vh * 0.35;
+
+    for (let i = 0; i < count; i++) {
       const s = document.createElement("div");
       s.className = "sparkle";
-      s.style.left = (x + (Math.random()*60 - 30)) + "px";
-      s.style.top  = (y + (Math.random()*40 - 20)) + "px";
+      const x = cx + (Math.random() - 0.5) * 220;
+      const y = cy + (Math.random() - 0.5) * 180;
+      s.style.left = `${x}px`;
+      s.style.top = `${y}px`;
       document.body.appendChild(s);
-      setTimeout(() => s.remove(), 800);
+      setTimeout(() => s.remove(), 900);
     }
-  };
+  }
 
-  const clearSectionInputs = (sec) => {
-    sec.querySelectorAll("input, select, textarea").forEach(el => {
-      if (!el.id) return;
-      if (el.id === "date") return;
-      if (el.type === "file") return;
-      if (el.type === "checkbox" || el.type === "radio") el.checked = false;
-      else el.value = "";
-    });
-  };
+  // ---------- boot ----------
+  window.addEventListener("hashchange", showViewFromHash);
 
-  const wireFloatingSections = () => {
-    // glyph button actions
-    document.body.addEventListener("click", (e) => {
-      const btn = e.target.closest(".glyphBtn");
-      if (!btn) return;
-
-      const act = btn.getAttribute("data-act");
-      const sec = btn.closest(".floatable");
-      if (!sec) return;
-
-      const fkey = sec.getAttribute("data-fkey");
+  window.addEventListener("resize", () => {
+    // re-clamp any floating blocks on resize
+    $$(".floatable.isFloating[data-fkey]").forEach(details => {
+      const fkey = details.getAttribute("data-fkey");
       if (!fkey) return;
-
-      const rect = sec.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + 22;
-
-      if (act === "spark") {
-        sparkleAt(cx, cy, 16);
-        return;
-      }
-
-      if (act === "float") {
-        const isFloating = sec.classList.contains("isFloating");
-        if (!isFloating) {
-          sec.classList.add("isFloating");
-          const x = Math.max(12, rect.left);
-          const y = Math.max(90, rect.top);
-          sec.style.left = `${x}px`;
-          sec.style.top  = `${y}px`;
-          setFloatStateFor(fkey, { mode: "floating", x, y });
-          sparkleAt(cx, cy, 10);
-        } else {
-          sec.classList.remove("isFloating","isPinned");
-          sec.style.left = "";
-          sec.style.top  = "";
-          setFloatStateFor(fkey, { mode: "docked" });
-          sparkleAt(cx, cy, 8);
-        }
-        scheduleSave();
-        return;
-      }
-
-      if (act === "pin") {
-        if (!sec.classList.contains("isFloating")) sec.classList.add("isFloating");
-        const pinned = sec.classList.toggle("isPinned");
-        const x = parseFloat(sec.style.left || rect.left);
-        const y = parseFloat(sec.style.top || rect.top);
-        setFloatStateFor(fkey, { mode: pinned ? "pinned" : "floating", x, y });
-        sparkleAt(cx, cy, 8);
-        scheduleSave();
-        return;
-      }
-
-      if (act === "reset") {
-        clearSectionInputs(sec);
-        sparkleAt(cx, cy, 10);
-        scheduleSave();
-        return;
-      }
+      const st = LS.get(`float:${fkey}`, null);
+      if (st && st.floating) applyFloating(details, st);
     });
+  });
 
-    // drag by summary (only floating + not pinned)
-    let drag = null;
-
-    const onPointerDown = (e) => {
-      const summary = e.target.closest(".floatable summary");
-      if (!summary) return;
-
-      const sec = summary.closest(".floatable");
-      if (!sec) return;
-      if (!sec.classList.contains("isFloating")) return;
-      if (sec.classList.contains("isPinned")) return;
-
-      const fkey = sec.getAttribute("data-fkey");
-      if (!fkey) return;
-
-      const rect = sec.getBoundingClientRect();
-      drag = {
-        sec, fkey,
-        offX: e.clientX - rect.left,
-        offY: e.clientY - rect.top
-      };
-
-      try { summary.setPointerCapture(e.pointerId); } catch {}
-      e.preventDefault();
-    };
-
-    const onPointerMove = (e) => {
-      if (!drag) return;
-      const { sec } = drag;
-
-      const x = Math.max(10, Math.min(window.innerWidth  - 40, e.clientX - drag.offX));
-      const y = Math.max(70, Math.min(window.innerHeight - 60, e.clientY - drag.offY));
-
-      sec.style.left = `${x}px`;
-      sec.style.top  = `${y}px`;
-      drag.lastX = x;
-      drag.lastY = y;
-    };
-
-    const onPointerUp = () => {
-      if (!drag) return;
-      const { fkey, lastX, lastY } = drag;
-      if (typeof lastX === "number" && typeof lastY === "number") {
-        setFloatStateFor(fkey, { mode: "floating", x: lastX, y: lastY });
-        scheduleSave();
-      }
-      drag = null;
-    };
-
-    document.body.addEventListener("pointerdown", onPointerDown, { passive: false });
-    document.body.addEventListener("pointermove", onPointerMove, { passive: true });
-    document.body.addEventListener("pointerup", onPointerUp, { passive: true });
-    document.body.addEventListener("pointercancel", onPointerUp, { passive: true });
-  };
-
-  const init = () => {
-    ensureOptions();
-    loadFromQueryOrStorage();
-    wireAutosave();
-
-    applyFloatStates();
-    wireFloatingSections();
-
-    scheduleSave();
-  };
-
-  document.addEventListener("DOMContentLoaded", init);
+  document.addEventListener("DOMContentLoaded", () => {
+    initGate();
+    initSidePlane();
+    initFloatingSections();
+    showViewFromHash();
+  });
 })();
