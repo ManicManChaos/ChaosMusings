@@ -199,5 +199,76 @@
   </main>
 
   <script src="app.js"></script>
+  <script>
+  // ===== HARD ROUTER (forces views to show/hide correctly) =====
+  const views = Array.from(document.querySelectorAll('.view'));
+
+  function showView(name){
+    views.forEach(v => v.hidden = (v.id !== `view-${name}`));
+  }
+
+  function route(){
+    const hash = (location.hash || '#gate').replace('#','');
+    if (hash === 'today') return showView('today');
+    if (hash === 'library') return showView('library');
+    if (hash === 'review') return showView('review');
+    // default = gate
+    return showView('gate');
+  }
+
+  window.addEventListener('hashchange', route);
+  route();
+
+  // ===== Gate button should enter Today =====
+  const sigilBtn = document.getElementById('sigilBtn');
+  if (sigilBtn){
+    sigilBtn.addEventListener('click', () => {
+      location.hash = '#today';
+    });
+  }
+</script>
+<!-- ALL YOUR HTML ABOVE -->
+<!-- Gate -->
+<main class="gateWrap" id="gateWrap" role="main">
+  ...
+</main>
+
+<!-- Today / Library / Review views -->
+<section class="view card" id="view-today">...</section>
+<section class="view card" id="view-library">...</section>
+<section class="view card" id="view-review">...</section>
+
+<!-- ✅ STEP 3 GOES HERE -->
+<script>
+  const views = document.querySelectorAll('.view');
+
+  function showView(name){
+    views.forEach(v => v.hidden = v.id !== `view-${name}`);
+  }
+
+  function route(){
+    const hash = location.hash.replace('#','') || 'gate';
+    if (hash === 'today') return showView('today');
+    if (hash === 'library') return showView('library');
+    if (hash === 'review') return showView('review');
+
+    // default: gate visible, others hidden
+    views.forEach(v => v.hidden = true);
+    document.getElementById('gateWrap').hidden = false;
+  }
+
+  window.addEventListener('hashchange', route);
+  route();
+
+  // Gate → Today
+  const sigilBtn = document.getElementById('sigilBtn');
+  if (sigilBtn){
+    sigilBtn.addEventListener('click', () => {
+      location.hash = '#today';
+    });
+  }
+</script>
+
+</body>
 </body>
 </html>
