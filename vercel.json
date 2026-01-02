@@ -6,7 +6,7 @@
         { "key": "Cache-Control", "value": "no-store" }
       ]
     }
-  ],
+  ]
   "routes": [
     { "src": "^/$", "dest": "/index.html" },
     { "src": "^/app$", "dest": "/index.html#today" },
@@ -15,5 +15,5 @@
     { "src": "^/review$", "dest": "/index.html#review" },
     { "src": "^/roidboy$", "dest": "/index.html#roidboy" },
     { "src": "^(.*)$", "dest": "/index.html" }
-  ]
 }
+]
