@@ -89,36 +89,33 @@
     appWrap.hidden = false;
   }
 
-  // ---------- Routing ----------
-  const views = {
-    today:   $('#view-today'),
-    library: $('#view-library'),
-    review:  $('#view-review'),
-    roidboy: $('#view-roidboy')
-  };
+function setView(view) {
+  document.querySelectorAll(".view").forEach(v => v.hidden = true);
+  const el = document.getElementById(`view-${view}`);
+  if (el) el.hidden = false;
+}
 
-  function showView(name) {
-    Object.entries(views).forEach(([k, el]) => {
-      if (!el) return;
-      el.hidden = (k !== name);
-    });
-  }
+function routeFromUrl() {
+  const path = (location.pathname || "/").toLowerCase();
 
-  function route() {
-    const raw = (location.hash || '#today').replace('#','').trim().toLowerCase();
-    const name = views[raw] ? raw : 'today';
-    showView(name);
+  if (path === "/library") return "library";
+  if (path === "/review") return "review";
+  if (path === "/roidboy") return "roidboy";
+  if (path === "/today" || path === "/app" || path === "/") return "today";
 
-    // update header chip active state
-    $$('.navlink').forEach(a => a.classList.toggle('isActive', a.getAttribute('href') === '#' + name));
+  return "today";
+}
 
-    // close side plane when navigating
-    closeNav();
-  }
+function applyRoute() {
+  // Prefer #hash if you use it, otherwise use pathname
+  const hash = (location.hash || "").replace("#", "").toLowerCase();
+  const view = hash || routeFromUrl();
+  setView(view);
+}
 
-  window.addEventListener('hashchange', route);
-  // Route on load
-  route();
+window.addEventListener("hashchange", applyRoute);
+window.addEventListener("popstate", applyRoute);
+document.addEventListener("DOMContentLoaded", applyRoute);
 
   // ---------- Side Plane ----------
   const scrim = $('.navScrim');
