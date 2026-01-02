@@ -1,6 +1,13 @@
 {
-  "routes": [
-    { "src": "^/(today|library|review|roidboy)?$", "dest": "/index.html" },
-    { "src": "^(.*)$", "dest": "/index.html" }
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    }
   ]
 }

@@ -3,226 +3,268 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0b1b14" />
+  <meta name="theme-color" content="#050a08" />
   <title>Manic Musings of Chaos</title>
+
+  <!-- Icons (served from /assets) -->
+  <link rel="icon" href="assets/favicon.png" />
+  <link rel="icon" sizes="16x16" href="assets/favicon-16.png" />
+  <link rel="icon" sizes="32x32" href="assets/favicon-32.png" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+
   <link rel="stylesheet" href="styles.css" />
+
+  <!--
+    Clean-path support:
+    If someone visits /today, /library, /review, /roidboy, we convert it into a hash route
+    WITHOUT needing extra HTML files.
+  -->
+  <script>
+    (function () {
+      if (location.hash) return;
+      var p = (location.pathname || '/').replace(/\/$/, '');
+      if (!p || p === '') return;
+      var map = {
+        '/today': '#today',
+        '/library': '#library',
+        '/review': '#review',
+        '/roidboy': '#roidboy',
+        '/year': '#review'
+      };
+      if (map[p]) {
+        location.replace('/' + map[p]);
+      } else {
+        // any other path -> home
+        location.replace('/#today');
+      }
+    })();
+  </script>
 </head>
-<body>
 
-<!-- COVER GATE (stable, no redirects, no tips system) -->
-<div id="gate" aria-label="Cover Gate">
-  <div class="gateWrap">
-    <div class="sigil" aria-label="Book Cover">
-      <img src="assets/covers/cover-closed.svg" alt="Manic Musings of Chaos cover" />
-      <div class="sigilTitle">MANIC MUSINGS OF CHAOS</div>
+<body class="gateBody">
+  <!-- Swipe hotzone to open side plane -->
+  <div class="leftHotzone" aria-hidden="true"></div>
+
+  <!-- Scrim + Side Plane (Stage-Manager style) -->
+  <div class="navScrim" hidden aria-hidden="true"></div>
+  <aside class="sidePlane" aria-label="Conjured navigation">
+    <div class="sidePlaneInner">
+      <button class="glyphNav" type="button" data-go="today" aria-label="Today">📖</button>
+      <button class="glyphNav" type="button" data-go="library" aria-label="Library">🗄️</button>
+      <button class="glyphNav" type="button" data-go="review" aria-label="Year">🜂</button>
+      <button class="glyphNav" type="button" data-go="roid" aria-label="Roid Boy">🏋️</button>
+      <button class="glyphNav" type="button" data-go="settings" aria-label="Settings">⚙︎</button>
     </div>
+  </aside>
 
-    <button class="enterBtn" id="enterBtn" type="button">
-      Enter Eugene — tell no lies
-    </button>
+  <!-- =====================
+       GATE (INTRO)
+       ===================== -->
+  <main class="gateWrap" id="gateWrap" role="main" aria-label="Manic Musings of Chaos — Entrance">
+    <section class="gateCard" id="gateCard">
+      <div class="gateStage" id="gateStage" aria-label="Spellbook gate">
+        <!-- CLOSED -->
+        <img
+          id="coverClosed"
+          class="gateImg isOn"
+          src="assets/cover-closed.png"
+          alt="Closed spellbook on a stand"
+          draggable="false"
+        />
 
-    <div class="muted">Tap once to enter.</div>
-  </div>
-</div>
+        <!-- OPEN -->
+        <img
+          id="coverOpen"
+          class="gateImg"
+          src="assets/cover-stand-open.png"
+          alt="Spellbook opened, pages glowing"
+          draggable="false"
+        />
 
-<header class="topbar">
-  <div class="brand">Manic Musings of Chaos</div>
-  <nav class="nav" aria-label="Navigation">
-    <button class="navbtn" data-go="#today" type="button">Today</button>
-    <button class="navbtn" data-go="#library" type="button">Library</button>
-    <button class="navbtn" data-go="#review" type="button">Year</button>
-    <button class="navbtn" data-go="#roidboy" type="button">Roid Boy</button>
-  </nav>
-</header>
+        <!-- Sigil button -->
+        <button class="sigilBtn" id="sigilBtn" type="button" aria-label="Open the book">
+          <span class="sigilRing" aria-hidden="true"></span>
+          <span class="sigilCore" aria-hidden="true"></span>
+          <span class="sigilText" aria-label="Earth, Fire, Water, Air">▽ △ ▽ △</span>
+        </button>
 
-<main class="container">
+        <!-- Sparkles -->
+        <div class="sparkleLayer" id="sparkleLayer" aria-hidden="true"></div>
 
-  <!-- TODAY -->
-  <section class="view" id="todayView">
-    <div class="card">
-      <h2>Entry</h2>
-
-      <div class="grid3">
-        <div class="field">
-          <label for="date">Date</label>
-          <input id="date" type="date" />
-        </div>
-        <div class="field">
-          <label for="day">Day</label>
-          <select id="day"></select>
-        </div>
-        <div class="field">
-          <label for="location">Location</label>
-          <input id="location" type="text" placeholder="Where were you?" />
-        </div>
+        <!-- Subtle fade so the "flip" feels cinematic -->
+        <div class="gateFade" id="gateFade" aria-hidden="true"></div>
       </div>
 
-      <div class="grid3">
-        <div class="field">
-          <label for="title">Title</label>
-          <input id="title" type="text" placeholder="Name the day." />
-        </div>
-        <div class="field">
-          <label for="word">Word of the day</label>
-          <input id="word" type="text" placeholder="One word." />
-        </div>
-        <div class="field">
-          <label for="focus">Intent / Focus</label>
-          <input id="focus" type="text" placeholder="What are we doing?" />
-        </div>
+      <div class="gateTitlePlate">
+        <div class="gateTitle">MANIC MUSINGS<br/>OF CHAOS</div>
+        <div class="gateSub">tell no lies</div>
       </div>
+    </section>
+  </main>
 
-      <div class="grid3">
-        <div class="field">
-          <label for="mood">Mood</label>
-          <select id="mood"></select>
-        </div>
-        <div class="field">
-          <label for="era">(optional) Era</label>
-          <select id="era"></select>
-        </div>
-        <div class="field">
-          <label for="relationshipStatus">Singleness Level</label>
-          <select id="relationshipStatus"></select>
-        </div>
+  <!-- =====================
+       APP SHELL
+       ===================== -->
+  <main class="appShell" id="appShell" hidden>
+    <header class="topbar">
+      <button class="navToggle" id="navToggle" type="button" aria-label="Open navigation">☰</button>
+      <div class="brand">Manic Musings</div>
+      <div class="topbarRight">
+        <span class="statusPill" id="statusPill" aria-live="polite">Ready</span>
       </div>
+    </header>
 
-      <details id="moments">
-        <summary>See what had happened was… <span class="muted">WOW / WTF / PLOT TWIST</span></summary>
-        <div class="field">
-          <label for="moment1">Moment 1</label>
-          <input id="moment1" type="text" placeholder="WOW / WTF / PLOT TWIST" />
-        </div>
-        <div class="field">
-          <label for="moment2">Moment 2</label>
-          <input id="moment2" type="text" placeholder="WOW / WTF / PLOT TWIST" />
-        </div>
-        <div class="field">
-          <label for="moment3">Moment 3</label>
-          <input id="moment3" type="text" placeholder="WOW / WTF / PLOT TWIST" />
-        </div>
-      </details>
+    <div class="container">
+      <!-- VIEW: TODAY -->
+      <section class="view card" id="view-today">
+        <h2>Today</h2>
+        <p class="muted">Your daily entry lives here.</p>
 
-      <details id="tasks">
-        <summary>Need-to-do → Been-done-dids</summary>
-        <div class="field">
-          <label for="todo">To-Do</label>
-          <textarea id="todo" placeholder="Need-to-do…"></textarea>
-        </div>
-        <div class="field">
-          <label for="done">Completed</label>
-          <textarea id="done" placeholder="Been-done-dids…"></textarea>
-        </div>
-      </details>
+        <details class="floatable" data-fkey="dailyEntry" open>
+          <summary>
+            Daily Entry
+            <span class="floatTools" aria-label="Floating tools">
+              <button type="button" class="glyphBtn" data-act="float" aria-label="Float / Dock">✧</button>
+              <button type="button" class="glyphBtn" data-act="pin" aria-label="Pin / Unpin">⌂</button>
+              <button type="button" class="glyphBtn" data-act="spark" aria-label="Sparkle">✺</button>
+              <button type="button" class="glyphBtn" data-act="reset" aria-label="Reset">↺</button>
+            </span>
+          </summary>
 
-      <details id="calendar">
-        <summary>Calendar Shenanigans</summary>
-        <div class="field">
-          <label for="cal1">Update 1</label>
-          <input id="cal1" type="text" placeholder="Time + what happened" />
-        </div>
-        <div class="field">
-          <label for="cal2">Update 2</label>
-          <input id="cal2" type="text" placeholder="Time + what happened" />
-        </div>
-      </details>
+          <div class="grid2">
+            <div class="field">
+              <label>Date</label>
+              <input type="date" id="entryDate" />
+            </div>
+            <div class="field">
+              <label>Location</label>
+              <input type="text" id="entryLocation" placeholder="Where were you?" />
+            </div>
+          </div>
 
-      <details id="confess">
-        <summary>So here’s the thing…</summary>
-        <div class="field">
-          <label for="confession">Receipts</label>
-          <textarea id="confession" placeholder="Writer space. No lies."></textarea>
-        </div>
-      </details>
+          <div class="grid2">
+            <div class="field">
+              <label>Title</label>
+              <input type="text" id="entryTitle" placeholder="Name the day." />
+            </div>
+            <div class="field">
+              <label>Word of the day</label>
+              <input type="text" id="entryWord" placeholder="One word." />
+            </div>
+          </div>
 
-      <!-- NO SAVE BUTTON (autosave only) -->
-      <div class="muted" id="saveStatus" style="padding-top:10px;">Saved ✓</div>
+          <div class="grid2">
+            <div class="field">
+              <label>Intent / Focus</label>
+              <input type="text" id="entryIntent" placeholder="What are we doing?" />
+            </div>
+            <div class="field">
+              <label>Mood</label>
+              <select id="entryMood">
+                <option value="">—</option>
+                <option>Soft</option>
+                <option>Locked in</option>
+                <option>Chaotic good</option>
+                <option>Unbothered</option>
+                <option>Spicy</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid2">
+            <div class="field">
+              <label>(optional) Era</label>
+              <select id="entryEra">
+                <option value="">—</option>
+                <option>Glow-up</option>
+                <option>Villain arc</option>
+                <option>Rom-com</option>
+                <option>Wizard era</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Singleness level</label>
+              <select id="entrySingle">
+                <option value="">—</option>
+                <option>Booked</option>
+                <option>Browsing</option>
+                <option>Unclaimed treasure</option>
+                <option>Do not approach</option>
+              </select>
+            </div>
+          </div>
+
+          <details class="innerCard">
+            <summary>See what had happened was… WOW / WTF / PLOT TWIST</summary>
+            <div class="field">
+              <label>Notes</label>
+              <textarea id="entryPlot" rows="6" placeholder="Tell it." ></textarea>
+            </div>
+          </details>
+
+          <details class="innerCard">
+            <summary>Need-to-do → Been-done-dids</summary>
+            <div class="field">
+              <label>List</label>
+              <textarea id="entryTodos" rows="6" placeholder="Write it." ></textarea>
+            </div>
+          </details>
+
+          <details class="innerCard">
+            <summary>Calendar Shenanigans</summary>
+            <div class="field">
+              <label>Notes</label>
+              <textarea id="entryCal" rows="5" placeholder="Who said what, when?" ></textarea>
+            </div>
+          </details>
+
+          <details class="innerCard">
+            <summary>So here’s the thing…</summary>
+            <div class="field">
+              <label>Confession</label>
+              <textarea id="entryConfession" rows="8" placeholder="We listen, we don’t judge." ></textarea>
+            </div>
+          </details>
+
+          <div class="actions">
+            <button class="btn gold" id="saveEntryBtn" type="button">Save ✦</button>
+            <span class="muted" id="saveState">Not saved</span>
+          </div>
+        </details>
+      </section>
+
+      <!-- VIEW: LIBRARY -->
+      <section class="view card" id="view-library" hidden>
+        <h2>Library</h2>
+        <p class="muted">Saved entries appear here (grouped later).</p>
+        <div class="list" id="libraryList"></div>
+      </section>
+
+      <!-- VIEW: REVIEW (Year) -->
+      <section class="view card" id="view-review" hidden>
+        <h2>Year</h2>
+        <p class="muted">This becomes the cinematic yearly review + floating sections.</p>
+        <div class="bar"><div id="cycleFill"></div></div>
+      </section>
+
+      <!-- VIEW: ROID BOY -->
+      <section class="view card" id="view-roidboy" hidden>
+        <h2>Roid Boy</h2>
+        <p class="muted">Pop-out trainer comes next (after Floating Sections is locked).</p>
+        <div class="actions">
+          <button class="btn primary" id="roidOpen" type="button">Summon Roid Boy</button>
+        </div>
+      </section>
+
+      <!-- VIEW: SETTINGS (placeholder) -->
+      <section class="view card" id="view-settings" hidden>
+        <h2>Settings</h2>
+        <p class="muted">Placeholder. We wire Postmark / 1Password / Supabase later.</p>
+      </section>
+
     </div>
-  </section>
+  </main>
 
-  <!-- LIBRARY -->
-  <section class="view" id="libraryView" hidden>
-    <div class="card">
-      <h2>Library</h2>
-      <div class="muted">Stored locally on this device (browser localStorage).</div>
-      <div id="libraryList" style="margin-top:12px;"></div>
-    </div>
-  </section>
-
-  <!-- REVIEW -->
-  <section class="view" id="reviewView" hidden>
-    <div class="card">
-      <h2>Year in Review</h2>
-      <div class="muted">Counts + top moods (foundation for the real review).</div>
-      <div id="reviewStats" style="margin-top:12px;"></div>
-    </div>
-  </section>
-
-  <!-- ROID BOY -->
-  <section class="view" id="roidboyView" hidden>
-    <div class="card">
-      <h2>Roid Boy Chronicles</h2>
-      <div class="muted">Autosaves with the entry.</div>
-
-      <details open>
-        <summary>Gym Session</summary>
-
-        <div class="grid2">
-          <div class="field">
-            <label for="arriveTime">Time arrived</label>
-            <select id="arriveTime"></select>
-          </div>
-          <div class="field">
-            <label for="gymDuration">Time spent</label>
-            <select id="gymDuration"></select>
-          </div>
-        </div>
-
-        <div class="grid2">
-          <div class="field">
-            <label for="weight">Weight</label>
-            <select id="weight"></select>
-          </div>
-          <div class="field">
-            <label for="bfPercent">Body fat % (weekly)</label>
-            <select id="bfPercent"></select>
-          </div>
-        </div>
-
-        <div class="field">
-          <label for="workoutNotes">Workout notes</label>
-          <textarea id="workoutNotes" placeholder="What did you train? Sets? PRs?"></textarea>
-        </div>
-
-        <div class="grid3">
-          <div class="field">
-            <label for="protein">Protein (g)</label>
-            <input id="protein" type="number" min="0" step="1" placeholder="0" />
-          </div>
-          <div class="field">
-            <label for="carbs">Carbs (g)</label>
-            <input id="carbs" type="number" min="0" step="1" placeholder="0" />
-          </div>
-          <div class="field">
-            <label for="fat">Fat (g)</label>
-            <input id="fat" type="number" min="0" step="1" placeholder="0" />
-          </div>
-        </div>
-
-        <div class="field">
-          <label for="cardioType">Cardio type</label>
-          <select id="cardioType"></select>
-        </div>
-        <div class="field">
-          <label for="cardioDuration">Cardio duration</label>
-          <select id="cardioDuration"></select>
-        </div>
-      </details>
-    </div>
-  </section>
-
-</main>
-
-<script defer src="app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
