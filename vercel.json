@@ -1,0 +1,19 @@
+{
+  "rewrites": [
+    { "source": "/app", "destination": "/index.html" },
+    { "source": "/today", "destination": "/index.html" },
+    { "source": "/library", "destination": "/index.html" },
+    { "source": "/review", "destination": "/index.html" },
+    { "source": "/roidboy", "destination": "/index.html" },
+    { "source": "/year", "destination": "/index.html" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    }
+  ]
+}
