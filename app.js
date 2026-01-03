@@ -1,294 +1,415 @@
-/* ============
-   Tiny helpers
-============= */
-const $ = (sel, root=document) => root.querySelector(sel);
-const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+/* Manic Musings of Chaos — minimal, stable, no-helper-text core */
 
-const LS_KEY = "mmoc_entry_v1";
+const $ = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
-/* ============
-   Routing
-============= */
+/* ---------------- Routing ---------------- */
+
 function setView(view) {
-  $$(".view").forEach(v => v.hidden = true);
-  const el = document.getElementById(`view-${view}`);
+  $$(".view").forEach(v => (v.hidden = true));
+  const el = $(`#view-${view}`);
   if (el) el.hidden = false;
 }
 
+function routeFromUrl() {
+  const path = (location.pathname || "/").toLowerCase();
+  if (path === "/library") return "library";
+  if (path === "/review" || path === "/year") return "review";
+  if (path === "/roidboy") return "roidboy";
+  if (path === "/settings") return "settings";
+  return "today";
+}
+
 function applyRoute() {
-  const hash = (location.hash || "#today").replace("#","").toLowerCase();
-  const view = (["today","library","review","roidboy","settings"].includes(hash)) ? hash : "today";
+  const hash = (location.hash || "").replace("#", "").toLowerCase();
+  const view = hash || routeFromUrl();
   setView(view);
 }
 
 window.addEventListener("hashchange", applyRoute);
 window.addEventListener("popstate", applyRoute);
 
-/* ============
-   Gate → App
-============= */
+/* ---------------- Gate -> App ---------------- */
+
 function openBook() {
-  const gateWrap = $("#gateWrap");
-  const appShell = $("#appShell");
-  const coverClosed = $("#coverClosed");
-  const coverOpen = $("#coverOpen");
+  const closed = $("#coverClosed");
+  const open = $("#coverOpen");
+  const gate = $("#gateWrap");
+  const app = $("#appShell");
 
-  coverClosed?.classList.remove("isOn");
-  coverOpen?.classList.add("isOn");
-
-  // tiny cinematic delay
+  if (closed && open) {
+    closed.classList.remove("isOn");
+    open.classList.add("isOn");
+  }
+  // short cinematic delay
   setTimeout(() => {
-    gateWrap.hidden = true;
-    appShell.hidden = false;
-    // default route
+    if (gate) gate.hidden = true;
+    if (app) app.hidden = false;
+    // force route to today if none
     if (!location.hash) location.hash = "#today";
     applyRoute();
-  }, 420);
+  }, 520);
 }
 
-/* ============
-   Side Plane (swipe-only + scrim)
-============= */
-function openSidePlane() {
-  $(".sidePlane")?.classList.add("isOpen");
+/* ---------------- Side Plane (swipe-only) ---------------- */
+
+let planeOpen = false;
+
+function setPlane(open) {
+  planeOpen = open;
   const scrim = $(".navScrim");
-  if (scrim) { scrim.hidden = false; }
+  const plane = $(".sidePlane");
+  if (!scrim || !plane) return;
+
+  if (open) {
+    scrim.hidden = false;
+    plane.classList.add("open");
+  } else {
+    plane.classList.remove("open");
+    scrim.hidden = true;
+  }
 }
-function closeSidePlane() {
-  $(".sidePlane")?.classList.remove("isOpen");
+
+function initSwipeNav() {
+  const hotzone = $(".leftHotzone");
   const scrim = $(".navScrim");
-  if (scrim) { scrim.hidden = true; }
-}
+  const plane = $(".sidePlane");
+  if (!hotzone || !scrim || !plane) return;
 
-function wireSidePlane() {
-  const hot = $(".leftHotzone");
-  const scrim = $(".navScrim");
-  const navToggle = $("#navToggle");
+  hotzone.addEventListener("click", () => setPlane(true));
+  scrim.addEventListener("click", () => setPlane(false));
 
-  // keep button inert (CSS hides it); still allow click if present
-  navToggle?.addEventListener("click", openSidePlane);
-
-  scrim?.addEventListener("click", closeSidePlane);
-
-  // swipe gesture from left edge
+  // swipe detection (simple + stable)
   let startX = null;
+  let startY = null;
+
   window.addEventListener("touchstart", (e) => {
-    if (!e.touches || !e.touches[0]) return;
-    const x = e.touches[0].clientX;
-    if (x <= 22) startX = x;
+    const t = e.touches && e.touches[0];
+    if (!t) return;
+    startX = t.clientX;
+    startY = t.clientY;
   }, { passive: true });
 
-  window.addEventListener("touchmove", (e) => {
-    if (startX == null) return;
-    const x = e.touches[0].clientX;
-    if (x - startX > 28) {
-      openSidePlane();
-      startX = null;
-    }
+  window.addEventListener("touchend", (e) => {
+    const t = e.changedTouches && e.changedTouches[0];
+    if (!t || startX == null || startY == null) return;
+
+    const dx = t.clientX - startX;
+    const dy = t.clientY - startY;
+
+    // open: start near left edge and swipe right
+    if (startX < 28 && dx > 55 && Math.abs(dy) < 60) setPlane(true);
+
+    // close: swipe left while plane open
+    if (planeOpen && dx < -55 && Math.abs(dy) < 60) setPlane(false);
+
+    startX = startY = null;
   }, { passive: true });
 
-  hot?.addEventListener("click", openSidePlane);
-
+  // nav buttons -> set hash + close
   $$(".glyphNav").forEach(btn => {
     btn.addEventListener("click", () => {
       const go = (btn.getAttribute("data-go") || "today").toLowerCase();
-      location.hash = "#" + go;
-      closeSidePlane();
+      location.hash = `#${go === "roid" ? "roidboy" : go}`;
+      setPlane(false);
     });
   });
 }
 
-/* ============
-   Time stamp chips
-============= */
+/* ---------------- Timestamp pills ---------------- */
+
 function pad2(n){ return String(n).padStart(2,"0"); }
-function formatDate(d){
+
+function updatePills() {
+  const d = new Date();
+  const day = d.toLocaleDateString(undefined, { weekday: "long" });
+  const date = d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+  const time = d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+
+  const pillDay = $("#pillDay");
+  const pillDate = $("#pillDate");
+  const pillTime = $("#pillTime");
+
+  if (pillDay) pillDay.textContent = day.toUpperCase();
+  if (pillDate) pillDate.textContent = date.toUpperCase();
+  if (pillTime) pillTime.textContent = time.toUpperCase();
+}
+
+/* ---------------- Data model ---------------- */
+
+function storageKeyForToday() {
+  const d = new Date();
   const y = d.getFullYear();
-  const m = pad2(d.getMonth()+1);
-  const day = pad2(d.getDate());
-  return `${y}-${m}-${day}`;
-}
-function formatPrettyDate(d){
-  return d.toLocaleDateString(undefined, { month:"short", day:"numeric", year:"numeric" });
-}
-function formatPrettyTime(d){
-  return d.toLocaleTimeString(undefined, { hour:"numeric", minute:"2-digit" });
-}
-function dayName(d){
-  return d.toLocaleDateString(undefined, { weekday:"long" });
+  const m = pad2(d.getMonth() + 1);
+  const da = pad2(d.getDate());
+  return `mmoc:entry:${y}-${m}-${da}`;
 }
 
-function updateChips() {
-  const now = new Date();
-  $("#chipDay").textContent = dayName(now);
-  $("#chipDate").textContent = formatPrettyDate(now);
-  $("#chipTime").textContent = formatPrettyTime(now);
+function readEntry() {
+  const raw = localStorage.getItem(storageKeyForToday());
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch { return null; }
 }
 
-/* ============
-   Context moments builder
-============= */
-function momentTemplate(i, data={}) {
-  const type = data.type || "";
-  const notes = data.notes || "";
-  return `
-    <div class="momentCard" data-i="${i}">
-      <div class="momentTop">
-        <div class="momentNum">Moment ${i+1}</div>
-        <button class="momentKill" type="button" aria-label="Remove moment">✕</button>
-      </div>
-
-      <div class="field">
-        <label>Type</label>
-        <select class="momentType">
-          <option value="" ${type===""?"selected":""}>—</option>
-          <option ${type==="WOW"?"selected":""}>WOW</option>
-          <option ${type==="WTF"?"selected":""}>WTF</option>
-          <option ${type==="PLOT TWIST"?"selected":""}>PLOT TWIST</option>
-          <option ${type==="PROOF"?"selected":""}>PROOF</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label>Description</label>
-        <textarea class="momentNotes" rows="5" placeholder="What happened?">${notes}</textarea>
-      </div>
-    </div>
-  `;
+function writeEntry(data) {
+  localStorage.setItem(storageKeyForToday(), JSON.stringify(data));
 }
 
-function renderMoments(moments) {
-  const host = $("#momentsList");
-  if (!host) return;
-  host.innerHTML = moments.map((m, i) => momentTemplate(i, m)).join("");
-
-  $$(".momentCard", host).forEach(card => {
-    const kill = $(".momentKill", card);
-    kill?.addEventListener("click", () => {
-      const i = Number(card.getAttribute("data-i"));
-      const state = loadState();
-      state.moments.splice(i, 1);
-      saveState(state, { quiet:true });
-      renderMoments(state.moments);
-    });
-  });
-}
-
-/* ============
-   Save / Load
-============= */
-function collectState() {
+function getFormData() {
   return {
-    meta: {
-      isoDate: formatDate(new Date()),
-      stamp: new Date().toISOString()
-    },
-    assessment: {
-      title: $("#entryTitle")?.value || "",
-      location: $("#entryLocation")?.value || "",
-      mood: $("#entryMood")?.value || "",
-      era: $("#entryEra")?.value || "",
-      intent: $("#entryIntent")?.value || "",
-      word: $("#entryWord")?.value || "",
-      single: $("#entrySingle")?.value || ""
-    },
-    summation: {
-      confession: $("#entryConfession")?.value || ""
-    },
-    moments: readMomentsFromDOM()
+    title: ($("#entryTitle")?.value || "").trim(),
+    location: ($("#entryLocation")?.value || "").trim(),
+    intent: ($("#entryIntent")?.value || "").trim(),
+    mood: ($("#entryMood")?.value || ""),
+    era: ($("#entryEra")?.value || ""),
+    single: ($("#entrySingle")?.value || ""),
+    word: ($("#entryWord")?.value || "").trim(),
+    dayTag: ($("#entryDayTag")?.value || "").trim(),
+    confession: ($("#entryConfession")?.value || "").trim(),
+    moments: readMomentsFromUI(),
+    savedAt: new Date().toISOString()
   };
 }
 
-function readMomentsFromDOM() {
-  const cards = $$("#momentsList .momentCard");
-  return cards.map(card => ({
-    type: $(".momentType", card)?.value || "",
-    notes: $(".momentNotes", card)?.value || ""
-  }));
+function setFormData(data) {
+  if (!data) return;
+  if ($("#entryTitle")) $("#entryTitle").value = data.title || "";
+  if ($("#entryLocation")) $("#entryLocation").value = data.location || "";
+  if ($("#entryIntent")) $("#entryIntent").value = data.intent || "";
+  if ($("#entryMood")) $("#entryMood").value = data.mood || "";
+  if ($("#entryEra")) $("#entryEra").value = data.era || "";
+  if ($("#entrySingle")) $("#entrySingle").value = data.single || "";
+  if ($("#entryWord")) $("#entryWord").value = data.word || "";
+  if ($("#entryDayTag")) $("#entryDayTag").value = data.dayTag || "";
+  if ($("#entryConfession")) $("#entryConfession").value = data.confession || "";
+
+  // moments
+  const list = $("#momentsList");
+  if (list) list.innerHTML = "";
+  (data.moments || []).forEach(m => addMomentCard(m));
 }
 
-function loadState() {
-  try {
-    const raw = localStorage.getItem(LS_KEY);
-    if (!raw) return { moments: [] };
-    return JSON.parse(raw);
-  } catch {
-    return { moments: [] };
-  }
+/* ---------------- Moments UI ---------------- */
+
+function momentTemplate(data = {}) {
+  return {
+    kind: data.kind || "",
+    desc: data.desc || "",
+    proofName: data.proofName || "",
+    proofDataUrl: data.proofDataUrl || "" // optional preview later
+  };
 }
 
-function saveState(state, opts={}) {
-  localStorage.setItem(LS_KEY, JSON.stringify(state));
+function addMomentCard(seed = {}) {
+  const list = $("#momentsList");
+  if (!list) return;
 
+  const m = momentTemplate(seed);
+
+  const card = document.createElement("div");
+  card.className = "momentCard";
+
+  const top = document.createElement("div");
+  top.className = "momentTop";
+
+  // left: empty spacer (no text)
+  const spacer = document.createElement("div");
+  spacer.setAttribute("aria-hidden", "true");
+  spacer.textContent = " ";
+
+  const kill = document.createElement("button");
+  kill.className = "momentKill";
+  kill.type = "button";
+  kill.setAttribute("aria-label", "Remove moment");
+  kill.textContent = "×";
+  kill.addEventListener("click", () => card.remove());
+
+  top.appendChild(spacer);
+  top.appendChild(kill);
+
+  const grid = document.createElement("div");
+  grid.className = "momentGrid";
+
+  // kind
+  const kindWrap = document.createElement("div");
+  kindWrap.className = "field";
+  const kindSel = document.createElement("select");
+  kindSel.setAttribute("aria-label", "Kind");
+  const opts = ["", "WOW", "WTF", "PLOT TWIST"];
+  opts.forEach(o => {
+    const op = document.createElement("option");
+    op.value = o;
+    op.textContent = o;
+    kindSel.appendChild(op);
+  });
+  kindSel.value = m.kind;
+  kindWrap.appendChild(kindSel);
+
+  // desc
+  const descWrap = document.createElement("div");
+  descWrap.className = "field";
+  const desc = document.createElement("textarea");
+  desc.rows = 5;
+  desc.setAttribute("aria-label", "Describe");
+  desc.value = m.desc;
+  descWrap.appendChild(desc);
+
+  // proof upload
+  const proofWrap = document.createElement("div");
+  proofWrap.className = "field";
+  proofWrap.style.marginTop = "10px";
+
+  const fileBtn = document.createElement("label");
+  fileBtn.className = "fileBtn";
+  fileBtn.setAttribute("aria-label", "Upload proof");
+  // no visible helper words — use glyphs
+  fileBtn.textContent = "⟡";
+
+  const file = document.createElement("input");
+  file.type = "file";
+  file.accept = "image/*";
+  file.addEventListener("change", async () => {
+    const f = file.files && file.files[0];
+    if (!f) return;
+    // store name + lightweight preview (dataurl). keep simple.
+    const reader = new FileReader();
+    reader.onload = () => {
+      card.dataset.proofName = f.name;
+      card.dataset.proofDataUrl = String(reader.result || "");
+    };
+    reader.readAsDataURL(f);
+  });
+
+  fileBtn.appendChild(file);
+  proofWrap.appendChild(fileBtn);
+
+  const rightCol = document.createElement("div");
+  rightCol.appendChild(descWrap);
+  rightCol.appendChild(proofWrap);
+
+  grid.appendChild(kindWrap);
+  grid.appendChild(rightCol);
+
+  card.appendChild(top);
+  card.appendChild(grid);
+
+  list.appendChild(card);
+}
+
+function readMomentsFromUI() {
+  const list = $("#momentsList");
+  if (!list) return [];
+  const cards = Array.from(list.querySelectorAll(".momentCard"));
+  return cards.map(card => {
+    const kindSel = card.querySelector("select");
+    const desc = card.querySelector("textarea");
+    return {
+      kind: (kindSel && kindSel.value) || "",
+      desc: (desc && desc.value) || "",
+      proofName: card.dataset.proofName || "",
+      proofDataUrl: card.dataset.proofDataUrl || ""
+    };
+  });
+}
+
+/* ---------------- Save (wax seal) ---------------- */
+
+function flashSaved() {
+  const glow = $("#saveGlow");
+  const seal = $("#statusSeal");
+  if (glow) glow.classList.add("on");
+  if (seal) seal.textContent = "◈";
+  setTimeout(() => {
+    if (glow) glow.classList.remove("on");
+    if (seal) seal.textContent = "◉";
+  }, 900);
+}
+
+function initSave() {
+  const saveBtn = $("#saveEntryBtn");
+  if (!saveBtn) return;
+
+  saveBtn.addEventListener("click", () => {
+    const data = getFormData();
+    writeEntry(data);
+    flashSaved();
+    rebuildLibrary();
+  });
+}
+
+/* ---------------- Library view (minimal) ---------------- */
+
+function rebuildLibrary() {
+  const wrap = $("#libraryList");
+  if (!wrap) return;
+  wrap.innerHTML = "";
+
+  // show last 14 days
   const now = new Date();
-  $("#saveState").textContent = "Sealed";
-  $("#saveStamp").textContent = `${dayName(now)} • ${formatPrettyDate(now)} • ${formatPrettyTime(now)}`;
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(now);
+    d.setDate(now.getDate() - i);
+    const y = d.getFullYear();
+    const m = pad2(d.getMonth() + 1);
+    const da = pad2(d.getDate());
+    const key = `mmoc:entry:${y}-${m}-${da}`;
+    const raw = localStorage.getItem(key);
+    if (!raw) continue;
 
-  if (!opts.quiet) $("#statusPill").textContent = "Saved";
-  setTimeout(() => { $("#statusPill").textContent = "Ready"; }, 900);
-}
+    let entry;
+    try { entry = JSON.parse(raw); } catch { continue; }
 
-function hydrateUI(state) {
-  // Assessment
-  $("#entryTitle").value = state.assessment?.title || "";
-  $("#entryLocation").value = state.assessment?.location || "";
-  $("#entryMood").value = state.assessment?.mood || "";
-  $("#entryEra").value = state.assessment?.era || "";
-  $("#entryIntent").value = state.assessment?.intent || "";
-  $("#entryWord").value = state.assessment?.word || "";
-  $("#entrySingle").value = state.assessment?.single || "";
+    const row = document.createElement("div");
+    row.style.border = "1px solid rgba(255,255,255,.08)";
+    row.style.borderRadius = "16px";
+    row.style.padding = "12px";
+    row.style.margin = "10px 0";
+    row.style.background = "rgba(0,0,0,.10)";
 
-  // Summation
-  $("#entryConfession").value = state.summation?.confession || "";
+    // No helper text: show only glyph + title (title is user data)
+    const title = document.createElement("div");
+    title.style.letterSpacing = ".10em";
+    title.style.textTransform = "uppercase";
+    title.style.fontWeight = "800";
+    title.textContent = (entry.title || "◈").toUpperCase();
 
-  // Moments
-  const moments = Array.isArray(state.moments) ? state.moments : [];
-  renderMoments(moments);
+    const sub = document.createElement("div");
+    sub.style.opacity = ".78";
+    sub.style.marginTop = "6px";
+    sub.style.letterSpacing = ".08em";
+    sub.style.textTransform = "uppercase";
+    sub.textContent = `${d.toLocaleDateString(undefined, { month: "short", day: "numeric" }).toUpperCase()}`;
 
-  // Saved stamp
-  if (state.meta?.stamp) {
-    const d = new Date(state.meta.stamp);
-    $("#saveState").textContent = "Sealed";
-    $("#saveStamp").textContent = `${dayName(d)} • ${formatPrettyDate(d)} • ${formatPrettyTime(d)}`;
-  } else {
-    $("#saveState").textContent = "Unsealed";
-    $("#saveStamp").textContent = "—";
+    row.appendChild(title);
+    row.appendChild(sub);
+    wrap.appendChild(row);
   }
 }
 
-/* ============
-   Init
-============= */
+/* ---------------- Boot ---------------- */
+
 document.addEventListener("DOMContentLoaded", () => {
-  // routing
+  // gate button
+  const sigil = $("#sigilBtn");
+  if (sigil) sigil.addEventListener("click", openBook);
+
+  initSwipeNav();
+  initSave();
+
+  // moments
+  const addMoment = $("#addMomentBtn");
+  if (addMoment) addMoment.addEventListener("click", () => addMomentCard());
+
+  // pills
+  updatePills();
+  setInterval(updatePills, 15 * 1000);
+
+  // route
   applyRoute();
 
-  // gate
-  $("#sigilBtn")?.addEventListener("click", openBook);
+  // load saved entry if exists
+  const saved = readEntry();
+  if (saved) setFormData(saved);
 
-  // side plane
-  wireSidePlane();
-
-  // chips
-  updateChips();
-  setInterval(updateChips, 15 * 1000);
-
-  // load saved
-  const state = loadState();
-  hydrateUI(state);
-
-  // add moment
-  $("#addMomentBtn")?.addEventListener("click", () => {
-    const st = loadState();
-    st.moments = Array.isArray(st.moments) ? st.moments : [];
-    st.moments.push({ type:"", notes:"" });
-    saveState(st, { quiet:true });
-    renderMoments(st.moments);
-  });
-
-  // seal save
-  $("#saveEntryBtn")?.addEventListener("click", () => {
-    const st = collectState();
-    saveState(st);
-  });
+  rebuildLibrary();
 });
