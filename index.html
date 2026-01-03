@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#050a08" />
+  <meta name="theme-color" content="#0b0f0d" />
   <title>Manic Musings of Chaos</title>
 
-  <!-- Icons (served from /assets) -->
+  <!-- Icons -->
   <link rel="icon" href="assets/icons/favicon.png" />
   <link rel="icon" sizes="16x16" href="assets/icons/favicon-16.png" />
   <link rel="icon" sizes="32x32" href="assets/icons/favicon-32.png" />
@@ -14,46 +14,42 @@
 
   <link rel="stylesheet" href="styles.css" />
 
-  <!--
-    Clean-path support:
-    If someone visits /today, /library, /review, /roidboy, we convert it into a hash route
-    WITHOUT needing extra HTML files.
-  -->
+  <!-- Clean-path -> hash route (static-safe) -->
   <script>
     (function () {
       if (location.hash) return;
-      var p = (location.pathname || '/').replace(/\/$/, '');
-      if (!p || p === '') return;
+      var p = (location.pathname || "/").toLowerCase().replace(/\/$/, "");
+      if (!p || p === "") return;
+
       var map = {
-        '/today': '#today',
-        '/library': '#library',
-        '/review': '#review',
-        '/roidboy': '#roidboy',
-        '/year': '#review'
+        "/": "#today",
+        "/app": "#today",
+        "/today": "#today",
+        "/library": "#library",
+        "/review": "#review",
+        "/year": "#review",
+        "/roidboy": "#roidboy",
+        "/settings": "#settings"
       };
-      if (map[p]) {
-        location.replace('/' + map[p]);
-      } else {
-        // any other path -> home
-        location.replace('/#today');
-      }
+
+      location.replace("/" + (map[p] || "#today"));
     })();
   </script>
 </head>
 
 <body class="gateBody">
-  <!-- Swipe hotzone to open side plane -->
+  <!-- Swipe hotzone (left edge) -->
   <div class="leftHotzone" aria-hidden="true"></div>
 
-  <!-- Scrim + Side Plane (Stage-Manager style) -->
+  <!-- Scrim + Side Plane -->
   <div class="navScrim" hidden aria-hidden="true"></div>
   <aside class="sidePlane" aria-label="Conjured navigation">
     <div class="sidePlaneInner">
       <button class="glyphNav" type="button" data-go="today" aria-label="Today">📖</button>
       <button class="glyphNav" type="button" data-go="library" aria-label="Library">🗄️</button>
       <button class="glyphNav" type="button" data-go="review" aria-label="Year">🜂</button>
-      <button class="glyphNav" type="button" data-go="roid" aria-label="Roid Boy">🏋️</button>
-      <button class="glyphNav" type="button" data-go="settings" aria-label="Settings">⚙︎</button>
+      <button class="glyphNav" type="button" data-go="roidboy" aria-label="Roid Boy">🏋️</button>
+      <button class="glyphNav" type="button" data-go="settings" aria-label="Settings">🜁</button>
     </div>
   </aside>
 
@@ -63,7 +59,6 @@
   <main class="gateWrap" id="gateWrap" role="main" aria-label="Manic Musings of Chaos — Entrance">
     <section class="gateCard" id="gateCard">
       <div class="gateStage" id="gateStage" aria-label="Spellbook gate">
-        <!-- CLOSED -->
         <img
           id="coverClosed"
           class="gateImg isOn"
@@ -71,8 +66,6 @@
           alt="Closed spellbook on a stand"
           draggable="false"
         />
-
-        <!-- OPEN -->
         <img
           id="coverOpen"
           class="gateImg"
@@ -81,20 +74,17 @@
           draggable="false"
         />
 
-        <!-- Sigil button -->
         <button class="sigilBtn" id="sigilBtn" type="button" aria-label="Open the book">
           <span class="sigilRing" aria-hidden="true"></span>
           <span class="sigilCore" aria-hidden="true"></span>
           <span class="sigilText" aria-label="Earth, Fire, Water, Air">▽ △ ▽ △</span>
         </button>
 
-        <!-- Sparkles -->
         <div class="sparkleLayer" id="sparkleLayer" aria-hidden="true"></div>
-
-        <!-- Subtle fade so the "flip" feels cinematic -->
         <div class="gateFade" id="gateFade" aria-hidden="true"></div>
       </div>
 
+      <!-- NO MORE DEAD GRAY SLAB -->
       <div class="gateTitlePlate">
         <div class="gateTitle">MANIC MUSINGS<br/>OF CHAOS</div>
         <div class="gateSub">tell no lies</div>
@@ -107,7 +97,8 @@
        ===================== -->
   <main class="appShell" id="appShell" hidden>
     <header class="topbar">
-      <button class="navToggle" id="navToggle" type="button" aria-label="Open navigation">☰</button>
+      <!-- Present in DOM for accessibility; CSS hides it (swipe-only) -->
+      <button class="navToggle" id="navToggle" type="button" aria-label="Open navigation" title="Open navigation">≡</button>
       <div class="brand">Manic Musings</div>
       <div class="topbarRight">
         <span class="statusPill" id="statusPill" aria-live="polite">Ready</span>
@@ -117,12 +108,19 @@
     <div class="container">
       <!-- VIEW: TODAY -->
       <section class="view card" id="view-today">
-        <h2>Today</h2>
-        <p class="muted">Your daily entry lives here.</p>
+        <div class="todayHeader">
+          <h2 class="viewTitle">Today</h2>
+          <div class="chronicle" aria-label="Auto date and time">
+            <span class="chip" id="chipDay">—</span>
+            <span class="chip" id="chipDate">—</span>
+            <span class="chip" id="chipTime">—</span>
+          </div>
+        </div>
 
-        <details class="floatable" data-fkey="dailyEntry" open>
+        <!-- ZONE 1: ASSESSMENT -->
+        <details class="floatable zone" data-fkey="assessment" open>
           <summary>
-            Daily Entry
+            Assessment
             <span class="floatTools" aria-label="Floating tools">
               <button type="button" class="glyphBtn" data-act="float" aria-label="Float / Dock">✧</button>
               <button type="button" class="glyphBtn" data-act="pin" aria-label="Pin / Unpin">⌂</button>
@@ -131,137 +129,136 @@
             </span>
           </summary>
 
-          <div class="grid2">
-            <div class="field">
-              <label>Date</label>
-              <input type="date" id="entryDate" />
-            </div>
-            <div class="field">
-              <label>Location</label>
-              <input type="text" id="entryLocation" placeholder="Where were you?" />
-            </div>
+          <div class="titleRow">
+            <input class="titleInput" type="text" id="entryTitle" placeholder="Title of the day…" autocomplete="off" />
           </div>
 
           <div class="grid2">
-            <div class="field">
-              <label>Title</label>
-              <input type="text" id="entryTitle" placeholder="Name the day." />
+            <div class="col cardInset">
+              <div class="field">
+                <label>Location</label>
+                <input type="text" id="entryLocation" placeholder="Where were you?" autocomplete="off" />
+              </div>
+              <div class="field">
+                <label>Mood</label>
+                <select id="entryMood">
+                  <option value="">—</option>
+                  <option>Locked in</option>
+                  <option>Unbothered</option>
+                  <option>Chaotic good</option>
+                  <option>Soft</option>
+                  <option>Spicy</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Era</label>
+                <select id="entryEra">
+                  <option value="">—</option>
+                  <option>Glow-up</option>
+                  <option>Villain arc</option>
+                  <option>Wizard era</option>
+                  <option>Rom-com</option>
+                </select>
+              </div>
             </div>
-            <div class="field">
-              <label>Word of the day</label>
-              <input type="text" id="entryWord" placeholder="One word." />
+
+            <div class="col cardInset">
+              <div class="field">
+                <label>Intent / Focus</label>
+                <input type="text" id="entryIntent" placeholder="What are we doing?" autocomplete="off" />
+              </div>
+              <div class="field">
+                <label>Word of the day</label>
+                <input type="text" id="entryWord" placeholder="One word." autocomplete="off" />
+              </div>
+              <div class="field">
+                <label>Singleness level</label>
+                <select id="entrySingle">
+                  <option value="">—</option>
+                  <option>Booked</option>
+                  <option>Browsing</option>
+                  <option>Unclaimed treasure</option>
+                  <option>Do not approach</option>
+                </select>
+              </div>
             </div>
           </div>
+        </details>
 
-          <div class="grid2">
-            <div class="field">
-              <label>Intent / Focus</label>
-              <input type="text" id="entryIntent" placeholder="What are we doing?" />
-            </div>
-            <div class="field">
-              <label>Mood</label>
-              <select id="entryMood">
-                <option value="">—</option>
-                <option>Soft</option>
-                <option>Locked in</option>
-                <option>Chaotic good</option>
-                <option>Unbothered</option>
-                <option>Spicy</option>
-              </select>
-            </div>
+        <!-- ZONE 2: CONTEXT -->
+        <details class="floatable zone" data-fkey="context" open>
+          <summary>
+            WOW / WTF / PLOT TWIST + PROOF
+            <span class="floatTools" aria-label="Floating tools">
+              <button type="button" class="glyphBtn" data-act="float" aria-label="Float / Dock">✧</button>
+              <button type="button" class="glyphBtn" data-act="pin" aria-label="Pin / Unpin">⌂</button>
+              <button type="button" class="glyphBtn" data-act="spark" aria-label="Sparkle">✺</button>
+              <button type="button" class="glyphBtn" data-act="reset" aria-label="Reset">↺</button>
+            </span>
+          </summary>
+
+          <div class="momentsHead">
+            <button class="btn rune" id="addMomentBtn" type="button" aria-label="Add a moment">＋</button>
+            <div class="mutedSmall">Add as many moments as needed.</div>
           </div>
 
-          <div class="grid2">
-            <div class="field">
-              <label>(optional) Era</label>
-              <select id="entryEra">
-                <option value="">—</option>
-                <option>Glow-up</option>
-                <option>Villain arc</option>
-                <option>Rom-com</option>
-                <option>Wizard era</option>
-              </select>
-            </div>
-            <div class="field">
-              <label>Singleness level</label>
-              <select id="entrySingle">
-                <option value="">—</option>
-                <option>Booked</option>
-                <option>Browsing</option>
-                <option>Unclaimed treasure</option>
-                <option>Do not approach</option>
-              </select>
-            </div>
-          </div>
+          <div id="momentsList" class="momentsList"></div>
+        </details>
 
-          <details class="innerCard">
-            <summary>See what had happened was… WOW / WTF / PLOT TWIST</summary>
-            <div class="field">
-              <label>Notes</label>
-              <textarea id="entryPlot" rows="6" placeholder="Tell it." ></textarea>
-            </div>
-          </details>
+        <!-- ZONE 3: SUMMATION -->
+        <details class="floatable zone" data-fkey="summation" open>
+          <summary>
+            Summation (Writer’s Studio)
+            <span class="floatTools" aria-label="Floating tools">
+              <button type="button" class="glyphBtn" data-act="float" aria-label="Float / Dock">✧</button>
+              <button type="button" class="glyphBtn" data-act="pin" aria-label="Pin / Unpin">⌂</button>
+              <button type="button" class="glyphBtn" data-act="spark" aria-label="Sparkle">✺</button>
+              <button type="button" class="glyphBtn" data-act="reset" aria-label="Reset">↺</button>
+            </span>
+          </summary>
 
-          <details class="innerCard">
-            <summary>Need-to-do → Been-done-dids</summary>
-            <div class="field">
-              <label>List</label>
-              <textarea id="entryTodos" rows="6" placeholder="Write it." ></textarea>
-            </div>
-          </details>
+          <div class="studio">
+            <label class="studioLabel" for="entryConfession">So here’s the thing…</label>
+            <textarea id="entryConfession" rows="10" class="studioText" placeholder="Write like the truth is watching."></textarea>
 
-          <details class="innerCard">
-            <summary>Calendar Shenanigans</summary>
-            <div class="field">
-              <label>Notes</label>
-              <textarea id="entryCal" rows="5" placeholder="Who said what, when?" ></textarea>
+            <div class="sealRow">
+              <button class="sealBtn" id="saveEntryBtn" type="button" aria-label="Seal this entry">
+                <span class="sealCore" aria-hidden="true"></span>
+                <span class="sealGlyph" aria-hidden="true">⟡</span>
+              </button>
+              <div class="sealMeta">
+                <div class="saveState" id="saveState">Unsealed</div>
+                <div class="mutedSmall" id="saveStamp">—</div>
+              </div>
             </div>
-          </details>
-
-          <details class="innerCard">
-            <summary>So here’s the thing…</summary>
-            <div class="field">
-              <label>Confession</label>
-              <textarea id="entryConfession" rows="8" placeholder="We listen, we don’t judge." ></textarea>
-            </div>
-          </details>
-
-          <div class="actions">
-            <button class="btn gold" id="saveEntryBtn" type="button">Save ✦</button>
-            <span class="muted" id="saveState">Not saved</span>
           </div>
         </details>
       </section>
 
       <!-- VIEW: LIBRARY -->
       <section class="view card" id="view-library" hidden>
-        <h2>Library</h2>
-        <p class="muted">Saved entries appear here (grouped later).</p>
+        <h2 class="viewTitle">Library</h2>
         <div class="list" id="libraryList"></div>
       </section>
 
-      <!-- VIEW: REVIEW (Year) -->
+      <!-- VIEW: REVIEW -->
       <section class="view card" id="view-review" hidden>
-        <h2>Year</h2>
-        <p class="muted">This becomes the cinematic yearly review + floating sections.</p>
+        <h2 class="viewTitle">Year</h2>
         <div class="bar"><div id="cycleFill"></div></div>
       </section>
 
       <!-- VIEW: ROID BOY -->
       <section class="view card" id="view-roidboy" hidden>
-        <h2>Roid Boy</h2>
-        <p class="muted">Pop-out trainer comes next (after Floating Sections is locked).</p>
+        <h2 class="viewTitle">Roid Boy</h2>
         <div class="actions">
-          <button class="btn primary" id="roidOpen" type="button">Summon Roid Boy</button>
+          <button class="btn primary" id="roidOpen" type="button" aria-label="Summon Roid Boy">⟡</button>
         </div>
       </section>
 
-      <!-- VIEW: SETTINGS (placeholder) -->
+      <!-- VIEW: SETTINGS -->
       <section class="view card" id="view-settings" hidden>
-        <h2>Settings</h2>
-        <p class="muted">Placeholder. We wire Postmark / 1Password / Supabase later.</p>
+        <h2 class="viewTitle">Settings</h2>
       </section>
-
     </div>
   </main>
 
