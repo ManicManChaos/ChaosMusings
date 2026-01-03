@@ -1,19 +1,12 @@
 {
-  "rewrites": [
-    { "source": "/app", "destination": "/index.html" },
-    { "source": "/today", "destination": "/index.html" },
-    { "source": "/library", "destination": "/index.html" },
-    { "source": "/review", "destination": "/index.html" },
-    { "source": "/roidboy", "destination": "/index.html" },
-    { "source": "/year", "destination": "/index.html" },
-    { "source": "/(.*)", "destination": "/index.html" }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-store" }
-      ]
-    }
+  "routes": [
+    { "src": "^/$", "dest": "/index.html" },
+    { "src": "^/today$", "dest": "/index.html#today" },
+    { "src": "^/library$", "dest": "/index.html#library" },
+    { "src": "^/review$", "dest": "/index.html#review" },
+    { "src": "^/year$", "dest": "/index.html#review" },
+    { "src": "^/roidboy$", "dest": "/index.html#roidboy" },
+    { "src": "^/settings$", "dest": "/index.html#settings" },
+    { "src": "^(.*)$", "dest": "/index.html" }
   ]
 }
