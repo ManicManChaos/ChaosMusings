@@ -1,19 +1,25 @@
-:root{
-  --bg1:#07130c;
-  --bg2:#0b1f14;
-  --text:#f7f1e8;
-  --muted:rgba(247,241,232,.72);
-  --shadow:0 18px 50px rgba(0,0,0,.45);
-  --r:18px;
+::root{
+  /* Core */
+  --gb-900:#2B2E2E;   /* deep shadow */
+  --gb-800:#373A3A;   /* greenblack */
 
-  --ink: rgba(245, 239, 227, 0.92);
-  --obsidian: #050608;
-  --veil: rgba(0,0,0,0.55);
-  --gold: rgba(212, 169, 72, 0.95);
-  --goldSoft: rgba(212, 169, 72, 0.22);
-  --emerald: rgba(120, 255, 210, 0.9);
-  --panel: rgba(10, 12, 14, 0.86);
-  --panelEdge: rgba(212, 169, 72, 0.28);
+  /* Vellum / nude (pink undertone) */
+  --vellum-100:#E7DDD3; /* warm vellum */
+  --vellum-200:#D8C2B8; /* blush parchment */
+  --rose-ink:#B58A84;   /* muted rose ink (rare) */
+
+  /* Khaki / bone */
+  --khaki-300:#C2B59B;  /* antique khaki */
+  --bone-400:#AFA58C;   /* dusty bone */
+
+  /* Gold (sacred) */
+  --gold-400:#C9A44C;
+  --gold-700:#8F6F2A;
+
+  /* Text */
+  --ink-100:#F3EEE8;
+  --ink-200:#E7DDD3;
+  --ink-500:#CFC6BC;
 }
 
 *{box-sizing:border-box}
@@ -23,15 +29,31 @@ a{text-decoration:none;color:inherit}
 
 /* ---------- Gate ---------- */
 #gate{
-  min-height:100svh;
-  display:grid;
-  place-items:center;
-  padding:24px;
+  html, body{
+  height:100%;
+}
+
+body{
   background:
-    radial-gradient(1000px 700px at 18% 18%, rgba(214,78,160,.22), transparent 60%),
-    radial-gradient(900px 650px at 78% 18%, rgba(86,176,120,.22), transparent 60%),
-    radial-gradient(900px 650px at 60% 80%, rgba(214,177,90,.18), transparent 62%),
-    #050a08;
+    radial-gradient(1200px 900px at 18% 12%, rgba(231,221,211,.16), rgba(0,0,0,0) 60%),
+    radial-gradient(900px 700px at 78% 28%, rgba(216,194,184,.10), rgba(0,0,0,0) 62%),
+    radial-gradient(1000px 900px at 55% 85%, rgba(194,181,155,.08), rgba(0,0,0,0) 65%),
+    linear-gradient(180deg, var(--gb-900), var(--gb-800));
+  color: var(--ink-100);
+}
+
+/* subtle grain film */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  opacity:.10;
+  mix-blend-mode:overlay;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,.035) 0 1px, rgba(0,0,0,0) 1px 3px),
+    repeating-linear-gradient(90deg, rgba(0,0,0,.03) 0 1px, rgba(0,0,0,0) 1px 4px);
+}
   overflow-x:hidden;
 }
 
@@ -127,24 +149,27 @@ a{text-decoration:none;color:inherit}
 
 .card{
   position:relative;
-  border:1px solid rgba(255,255,255,.12);
-  box-shadow:var(--shadow);
   border-radius:var(--r);
-  padding:16px;
-  margin:14px 0;
-  background:rgba(10,18,14,.40);
+  padding:18px;
+  margin:18px 0;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(231,221,211,.12),
+      rgba(43,46,46,.58)
+    );
+
+  border:1px solid rgba(194,181,155,.22);
+
+  box-shadow:
+    0 18px 60px rgba(0,0,0,.45),
+    inset 0 1px 0 rgba(255,255,255,.08);
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
   overflow:hidden;
-}
-.card::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  border-radius:inherit;
-  background:linear-gradient(180deg, rgba(16,47,30,.78), rgba(14,43,27,.72));
-  backdrop-filter: blur(14px) saturate(120%);
-  -webkit-backdrop-filter: blur(14px) saturate(120%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
-  pointer-events:none;
 }
 .card>*{position:relative;z-index:1}
 
