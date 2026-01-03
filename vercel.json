@@ -1,5 +1,7 @@
 {
   "routes": [
+    { "handle": "filesystem" },
+
     { "src": "^/$", "dest": "/index.html" },
     { "src": "^/today$", "dest": "/index.html#today" },
     { "src": "^/library$", "dest": "/index.html#library" },
@@ -7,6 +9,7 @@
     { "src": "^/year$", "dest": "/index.html#review" },
     { "src": "^/roidboy$", "dest": "/index.html#roidboy" },
     { "src": "^/settings$", "dest": "/index.html#settings" },
+
     { "src": "^(.*)$", "dest": "/index.html" }
   ]
 }
