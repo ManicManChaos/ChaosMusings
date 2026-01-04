@@ -1,13 +1,12 @@
-<!-- index.html -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0B0F0D" />
+  <meta name="theme-color" content="#050a08" />
   <title>Manic Musings of Chaos</title>
 
-  <!-- Icons -->
+  <!-- Icons (served from /assets) -->
   <link rel="icon" href="assets/icons/favicon.png" />
   <link rel="icon" sizes="16x16" href="assets/icons/favicon-16.png" />
   <link rel="icon" sizes="32x32" href="assets/icons/favicon-32.png" />
@@ -15,7 +14,7 @@
 
   <link rel="stylesheet" href="styles.css" />
 
-  <!-- Clean-path → hash route -->
+  <!-- Clean-path support -->
   <script>
     (function () {
       if (location.hash) return;
@@ -26,6 +25,7 @@
         '/library': '#library',
         '/review': '#review',
         '/roidboy': '#roidboy',
+        '/settings': '#settings',
         '/year': '#review'
       };
       if (map[p]) {
@@ -38,8 +38,8 @@
 </head>
 
 <body class="gateBody">
-  <!-- Swipe hotzone (left edge) -->
-  <div class="leftHotzone" aria-hidden="true"></div>
+  <!-- Swipe/tap hotzone to open side plane -->
+  <div class="leftHotzone" aria-hidden="true" title="Open navigation"></div>
 
   <!-- Scrim + Side Plane -->
   <div class="navScrim" hidden aria-hidden="true"></div>
@@ -50,15 +50,6 @@
       <button class="glyphNav" type="button" data-go="review" aria-label="Year">🜂</button>
       <button class="glyphNav" type="button" data-go="roidboy" aria-label="Roid Boy">🏋️</button>
       <button class="glyphNav" type="button" data-go="settings" aria-label="Settings">⚙︎</button>
-
-      <!-- On-open labels (not helper text; identifiers) -->
-      <div class="sideLabels" aria-hidden="true">
-        <div class="sideLabel">TODAY</div>
-        <div class="sideLabel">LIBRARY</div>
-        <div class="sideLabel">YEAR</div>
-        <div class="sideLabel">ROID BOY CHRONICLES</div>
-        <div class="sideLabel">SETTINGS</div>
-      </div>
     </div>
   </aside>
 
@@ -68,6 +59,7 @@
   <main class="gateWrap" id="gateWrap" role="main" aria-label="Manic Musings of Chaos — Entrance">
     <section class="gateCard" id="gateCard">
       <div class="gateStage" id="gateStage" aria-label="Spellbook gate">
+        <!-- CLOSED -->
         <img
           id="coverClosed"
           class="gateImg isOn"
@@ -75,6 +67,8 @@
           alt="Closed spellbook on a stand"
           draggable="false"
         />
+
+        <!-- OPEN -->
         <img
           id="coverOpen"
           class="gateImg"
@@ -83,19 +77,23 @@
           draggable="false"
         />
 
+        <!-- Sigil button -->
         <button class="sigilBtn" id="sigilBtn" type="button" aria-label="Open the book">
           <span class="sigilRing" aria-hidden="true"></span>
           <span class="sigilCore" aria-hidden="true"></span>
           <span class="sigilText" aria-label="Earth, Fire, Water, Air">▽ △ ▽ △</span>
         </button>
 
+        <!-- Sparkles -->
         <div class="sparkleLayer" id="sparkleLayer" aria-hidden="true"></div>
+
+        <!-- Subtle fade -->
         <div class="gateFade" id="gateFade" aria-hidden="true"></div>
       </div>
 
       <div class="gateTitlePlate">
         <div class="gateTitle">MANIC MUSINGS<br/>OF CHAOS</div>
-        <div class="gateSub">TELL NO LIES</div>
+        <!-- REMOVED: tell no lies from opening -->
       </div>
     </section>
   </main>
@@ -105,13 +103,11 @@
        ===================== -->
   <main class="appShell" id="appShell" hidden>
     <header class="topbar">
-      <!-- Hidden (swipe-only nav doctrine) -->
+      <!-- (kept hidden by CSS, swipe-only nav) -->
       <button class="navToggle" id="navToggle" type="button" aria-label="Open navigation">☰</button>
 
-      <div class="brandPlate">
-        <div class="brandTitle">MANIC MUSINGS</div>
-        <div class="brandSub">TELL NO LIES</div>
-      </div>
+      <!-- REMOVED "Manic Musings" → REPLACED WITH Tell No Lies (pink glow) -->
+      <div class="brand brandTNL">TELL NO LIES</div>
 
       <div class="topbarRight">
         <span class="statusPill" id="statusPill" aria-live="polite">READY</span>
@@ -119,41 +115,93 @@
     </header>
 
     <div class="container">
-
       <!-- VIEW: TODAY -->
       <section class="view card" id="view-today">
-        <div class="pageHeader">
-          <div class="pageTitle">TODAY</div>
+        <!-- REMOVED "Today" → REPLACED WITH peacock mark -->
+        <div class="todayHeader">
+          <div class="peacockMark" aria-label="Proud in full bloom">
+            <!-- Simple stylized peacock (nude-pink/pearl) as inline SVG so NOTHING breaks -->
+            <svg viewBox="0 0 220 90" role="img" aria-label="Proud in full bloom peacock">
+              <defs>
+                <radialGradient id="pearlGlow" cx="50%" cy="50%" r="60%">
+                  <stop offset="0%" stop-color="rgba(216,194,178,.95)"/>
+                  <stop offset="100%" stop-color="rgba(216,194,178,.35)"/>
+                </radialGradient>
+              </defs>
 
-          <!-- Date chips (IDs reserved for later JS; safe if unused) -->
-          <div class="dateChips" aria-hidden="true">
-            <div class="chip" id="chipDay">SATURDAY</div>
-            <div class="chip" id="chipDate">JAN 3, 2026</div>
-            <div class="chip" id="chipTime">11:21 AM</div>
+              <!-- fan feathers -->
+              <g opacity="0.95" fill="none" stroke="rgba(216,194,178,.70)" stroke-width="2">
+                <path d="M110 72 C85 70, 45 55, 18 25" />
+                <path d="M110 72 C92 66, 60 45, 40 22" />
+                <path d="M110 72 C98 62, 78 42, 66 20" />
+                <path d="M110 72 C106 60, 98 36, 96 18" />
+                <path d="M110 72 C114 60, 122 36, 124 18" />
+                <path d="M110 72 C122 62, 142 42, 154 20" />
+                <path d="M110 72 C128 66, 160 45, 180 22" />
+                <path d="M110 72 C135 70, 175 55, 202 25" />
+              </g>
+
+              <!-- feather eyes -->
+              <g fill="url(#pearlGlow)" opacity="0.9">
+                <circle cx="26" cy="28" r="4"/>
+                <circle cx="46" cy="26" r="4"/>
+                <circle cx="70" cy="24" r="4"/>
+                <circle cx="98" cy="20" r="4"/>
+                <circle cx="124" cy="20" r="4"/>
+                <circle cx="150" cy="24" r="4"/>
+                <circle cx="174" cy="26" r="4"/>
+                <circle cx="194" cy="28" r="4"/>
+              </g>
+
+              <!-- body -->
+              <g fill="rgba(216,194,178,.90)" opacity="0.95">
+                <path d="M110 74
+                         C98 74, 92 68, 92 60
+                         C92 52, 98 46, 108 46
+                         C114 46, 120 50, 124 56
+                         C128 62, 126 74, 110 74 Z"/>
+                <circle cx="126" cy="52" r="2.5" fill="rgba(10,18,14,.65)"/>
+                <!-- beak -->
+                <path d="M135 54 L146 58 L135 60 Z" fill="rgba(216,194,178,.80)"/>
+                <!-- legs -->
+                <rect x="106" y="74" width="2" height="10" fill="rgba(216,194,178,.55)"/>
+                <rect x="114" y="74" width="2" height="10" fill="rgba(216,194,178,.55)"/>
+              </g>
+
+              <!-- title text -->
+              <text x="110" y="14" text-anchor="middle" font-size="12"
+                    fill="rgba(216,194,178,.92)" letter-spacing="3"
+                    style="font-family: ui-serif, Georgia, 'Times New Roman', serif; text-transform: uppercase;">
+                PROUD IN FULL BLOOM
+              </text>
+            </svg>
+          </div>
+
+          <div class="chips">
+            <span class="chip" id="chipDay">—</span>
+            <span class="chip" id="chipDate">—</span>
+            <span class="chip" id="chipTime">—</span>
           </div>
         </div>
 
-        <!-- Hidden-but-present date field to keep JS compatibility -->
-        <input type="date" id="entryDate" class="srOnly" tabindex="-1" aria-hidden="true" />
+        <input type="date" id="entryDate" class="srOnly" />
 
-        <!-- ========== THE ASSESSMENT ========== -->
-        <section class="zone">
-          <div class="zoneHead">
-            <div class="zoneTitle">THE ASSESSMENT</div>
+        <!-- ZONE: ASSESSMENT -->
+        <section class="zone zone-assessment" id="zone-assessment">
+          <header class="zoneHead">
+            <h2 class="zoneTitle">THE ASSESSMENT</h2>
 
-            <!-- Float tools (glyph-only) -->
-            <div class="floatTools" aria-label="Floating tools">
+            <span class="floatTools" aria-label="Floating tools">
               <button type="button" class="glyphBtn" data-act="float" aria-label="Float / Dock">✧</button>
               <button type="button" class="glyphBtn" data-act="pin" aria-label="Pin / Unpin">⌂</button>
               <button type="button" class="glyphBtn" data-act="spark" aria-label="Sparkle">✺</button>
               <button type="button" class="glyphBtn" data-act="reset" aria-label="Reset">↺</button>
-            </div>
-          </div>
+            </span>
+          </header>
 
-          <!-- Title (centered, dominant) -->
-          <div class="titleRow">
+          <div class="field titleField">
             <label class="srOnly" for="entryTitle">TITLE</label>
-            <input type="text" id="entryTitle" class="titleInput" placeholder="TITLE" />
+            <input class="titleInput" type="text" id="entryTitle" placeholder="TITLE" />
           </div>
 
           <div class="grid2">
@@ -166,9 +214,7 @@
               <label>INTENT / FOCUS</label>
               <input type="text" id="entryIntent" placeholder="—" />
             </div>
-          </div>
 
-          <div class="grid2">
             <div class="field">
               <label>MOOD</label>
               <select id="entryMood">
@@ -185,9 +231,7 @@
               <label>WORD OF THE DAY</label>
               <input type="text" id="entryWord" placeholder="—" />
             </div>
-          </div>
 
-          <div class="grid2">
             <div class="field">
               <label>ERA</label>
               <select id="entryEra">
@@ -212,103 +256,74 @@
           </div>
         </section>
 
-        <!-- ========== THE CONTEXT & THE PROOF ========== -->
-        <section class="zone">
-          <div class="zoneHead">
-            <div class="zoneTitle">THE CONTEXT &amp; THE PROOF</div>
-            <div class="floatTools" aria-label="Floating tools">
+        <!-- ZONE: CONTEXT + PROOF -->
+        <section class="zone zone-context" id="zone-context">
+          <header class="zoneHead">
+            <h2 class="zoneTitle">THE CONTEXT &amp; THE PROOF</h2>
+
+            <span class="floatTools" aria-label="Floating tools">
               <button type="button" class="glyphBtn" data-act="float" aria-label="Float / Dock">✧</button>
               <button type="button" class="glyphBtn" data-act="pin" aria-label="Pin / Unpin">⌂</button>
               <button type="button" class="glyphBtn" data-act="spark" aria-label="Sparkle">✺</button>
               <button type="button" class="glyphBtn" data-act="reset" aria-label="Reset">↺</button>
-            </div>
-          </div>
+            </span>
+          </header>
 
-          <!-- Moments list (static now; will become dynamic later) -->
           <div class="moments">
-            <button class="addMomentBtn" type="button" id="addMomentBtn" aria-label="Add moment">＋</button>
-
-            <div class="momentCard">
-              <div class="grid3">
-                <div class="field">
-                  <label>WHAT KIND OF MOMENT</label>
-                  <select class="momentType" aria-label="Moment type">
-                    <option value="">—</option>
-                    <option>WOW</option>
-                    <option>WTF</option>
-                    <option>PLOT TWIST</option>
-                  </select>
-                </div>
-
-                <div class="field span2">
-                  <label>DESCRIBE THE MOMENT</label>
-                  <textarea class="momentDesc" rows="3" placeholder="—"></textarea>
-                </div>
-              </div>
-
-              <div class="field fileField">
-                <label>UPLOAD PROOF</label>
-                <input class="momentProof" type="file" accept="image/*" />
-              </div>
-            </div>
+            <button class="momentAdd" id="addMomentBtn" type="button" aria-label="Add moment">
+              <span class="plus">＋</span>
+            </button>
           </div>
         </section>
 
-        <!-- ========== THE SUMMATION ========== -->
-        <section class="zone">
-          <div class="zoneHead">
-            <div class="zoneTitle">THE SUMMATION</div>
-            <div class="floatTools" aria-label="Floating tools">
+        <!-- ZONE: SUMMATION -->
+        <section class="zone zone-summation" id="zone-summation">
+          <header class="zoneHead">
+            <h2 class="zoneTitle">THE SUMMATION</h2>
+
+            <span class="floatTools" aria-label="Floating tools">
               <button type="button" class="glyphBtn" data-act="float" aria-label="Float / Dock">✧</button>
               <button type="button" class="glyphBtn" data-act="pin" aria-label="Pin / Unpin">⌂</button>
               <button type="button" class="glyphBtn" data-act="spark" aria-label="Sparkle">✺</button>
               <button type="button" class="glyphBtn" data-act="reset" aria-label="Reset">↺</button>
-            </div>
-          </div>
+            </span>
+          </header>
 
-          <!-- Keep existing ID for JS compatibility (this is your "writer" field) -->
           <div class="field">
             <label class="srOnly" for="entryConfession">SUMMATION</label>
-            <textarea id="entryConfession" class="writerBox" rows="10" placeholder="The thing is…"></textarea>
+            <textarea id="entryConfession" rows="12" placeholder="The thing is…"></textarea>
           </div>
 
-          <!-- Save = glyph seal only -->
+          <!-- hidden legacy fields (kept for compatibility) -->
+          <textarea id="entryPlot" class="srOnly"></textarea>
+          <textarea id="entryTodos" class="srOnly"></textarea>
+          <textarea id="entryCal" class="srOnly"></textarea>
+
           <div class="actions">
             <button class="sealBtn" id="saveEntryBtn" type="button" aria-label="Seal entry">
               <span class="sealRing" aria-hidden="true"></span>
               <span class="sealGlyph" aria-hidden="true">✦</span>
             </button>
-            <span class="saveState" id="saveState">—</span>
+            <span class="saveState" id="saveState" aria-live="polite">—</span>
           </div>
         </section>
-
-        <!-- Keep legacy IDs in DOM (hidden), so nothing breaks if app.js still references them -->
-        <textarea id="entryPlot" class="srOnly" tabindex="-1" aria-hidden="true"></textarea>
-        <textarea id="entryTodos" class="srOnly" tabindex="-1" aria-hidden="true"></textarea>
-        <textarea id="entryCal" class="srOnly" tabindex="-1" aria-hidden="true"></textarea>
       </section>
 
       <!-- VIEW: LIBRARY -->
       <section class="view card" id="view-library" hidden>
-        <div class="pageHeader">
-          <div class="pageTitle">LIBRARY</div>
-        </div>
+        <div class="viewTitle">LIBRARY</div>
         <div class="list" id="libraryList"></div>
       </section>
 
-      <!-- VIEW: REVIEW (Year) -->
+      <!-- VIEW: REVIEW -->
       <section class="view card" id="view-review" hidden>
-        <div class="pageHeader">
-          <div class="pageTitle">YEAR</div>
-        </div>
+        <div class="viewTitle">YEAR</div>
         <div class="bar"><div id="cycleFill"></div></div>
       </section>
 
       <!-- VIEW: ROID BOY -->
       <section class="view card" id="view-roidboy" hidden>
-        <div class="pageHeader">
-          <div class="pageTitle">ROID BOY CHRONICLES</div>
-        </div>
+        <div class="viewTitle">ROID BOY</div>
         <div class="actions">
           <button class="btn primary" id="roidOpen" type="button" aria-label="Summon Roid Boy">✦</button>
         </div>
@@ -316,9 +331,7 @@
 
       <!-- VIEW: SETTINGS -->
       <section class="view card" id="view-settings" hidden>
-        <div class="pageHeader">
-          <div class="pageTitle">SETTINGS</div>
-        </div>
+        <div class="viewTitle">SETTINGS</div>
       </section>
 
     </div>
