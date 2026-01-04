@@ -1,9 +1,10 @@
+<!-- index.html -->
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#050806" />
+  <meta name="theme-color" content="#0B0F0D" />
   <title>Manic Musings of Chaos</title>
 
   <!-- Icons -->
@@ -14,78 +15,87 @@
 
   <link rel="stylesheet" href="styles.css" />
 
-  <!-- Clean-path -> hash (kept minimal; no visible text) -->
+  <!-- Clean-path → hash route -->
   <script>
     (function () {
       if (location.hash) return;
-      var p = (location.pathname || '/').replace(/\/$/, '').toLowerCase();
-      if (!p) return;
+      var p = (location.pathname || '/').replace(/\/$/, '');
+      if (!p || p === '') return;
       var map = {
         '/today': '#today',
         '/library': '#library',
         '/review': '#review',
         '/roidboy': '#roidboy',
-        '/year': '#review',
-        '/app': '#today',
-        '/': '#today'
+        '/year': '#review'
       };
-      location.replace(map[p] ? ('/' + map[p]) : '/#today');
+      if (map[p]) {
+        location.replace('/' + map[p]);
+      } else {
+        location.replace('/#today');
+      }
     })();
   </script>
 </head>
 
 <body class="gateBody">
-  <!-- Swipe hotzone to summon nav plane -->
+  <!-- Swipe hotzone (left edge) -->
   <div class="leftHotzone" aria-hidden="true"></div>
 
   <!-- Scrim + Side Plane -->
   <div class="navScrim" hidden aria-hidden="true"></div>
-  <aside class="sidePlane" aria-label="Navigation">
+  <aside class="sidePlane" aria-label="Conjured navigation">
     <div class="sidePlaneInner">
       <button class="glyphNav" type="button" data-go="today" aria-label="Today">📖</button>
       <button class="glyphNav" type="button" data-go="library" aria-label="Library">🗄️</button>
       <button class="glyphNav" type="button" data-go="review" aria-label="Year">🜂</button>
       <button class="glyphNav" type="button" data-go="roidboy" aria-label="Roid Boy">🏋️</button>
       <button class="glyphNav" type="button" data-go="settings" aria-label="Settings">⚙︎</button>
+
+      <!-- On-open labels (not helper text; identifiers) -->
+      <div class="sideLabels" aria-hidden="true">
+        <div class="sideLabel">TODAY</div>
+        <div class="sideLabel">LIBRARY</div>
+        <div class="sideLabel">YEAR</div>
+        <div class="sideLabel">ROID BOY CHRONICLES</div>
+        <div class="sideLabel">SETTINGS</div>
+      </div>
     </div>
   </aside>
 
   <!-- =====================
        GATE (INTRO)
        ===================== -->
-  <main class="gateWrap" id="gateWrap" role="main" aria-label="Entrance">
+  <main class="gateWrap" id="gateWrap" role="main" aria-label="Manic Musings of Chaos — Entrance">
     <section class="gateCard" id="gateCard">
       <div class="gateStage" id="gateStage" aria-label="Spellbook gate">
         <img
           id="coverClosed"
           class="gateImg isOn"
           src="assets/covers/cover-closed.png"
-          alt=""
+          alt="Closed spellbook on a stand"
           draggable="false"
         />
-
         <img
           id="coverOpen"
           class="gateImg"
           src="assets/covers/cover-stand-open.png"
-          alt=""
+          alt="Spellbook opened, pages glowing"
           draggable="false"
         />
 
-        <button class="sigilBtn" id="sigilBtn" type="button" aria-label="Open">
+        <button class="sigilBtn" id="sigilBtn" type="button" aria-label="Open the book">
           <span class="sigilRing" aria-hidden="true"></span>
           <span class="sigilCore" aria-hidden="true"></span>
-          <span class="sigilText" aria-hidden="true">▽ △ ▽ △</span>
+          <span class="sigilText" aria-label="Earth, Fire, Water, Air">▽ △ ▽ △</span>
         </button>
 
         <div class="sparkleLayer" id="sparkleLayer" aria-hidden="true"></div>
         <div class="gateFade" id="gateFade" aria-hidden="true"></div>
       </div>
 
-      <!-- Title plate: keep the vibe, minimal visible words allowed here -->
-      <div class="gateTitlePlate" aria-hidden="true">
+      <div class="gateTitlePlate">
         <div class="gateTitle">MANIC MUSINGS<br/>OF CHAOS</div>
-        <div class="gateSub">tell no lies</div>
+        <div class="gateSub">TELL NO LIES</div>
       </div>
     </section>
   </main>
@@ -94,13 +104,17 @@
        APP SHELL
        ===================== -->
   <main class="appShell" id="appShell" hidden>
-    <!-- No hamburger. Swipe-only. -->
-    <header class="topbar" aria-label="Top bar">
-      <div class="brand" aria-hidden="true">MANIC MUSINGS</div>
+    <header class="topbar">
+      <!-- Hidden (swipe-only nav doctrine) -->
+      <button class="navToggle" id="navToggle" type="button" aria-label="Open navigation">☰</button>
 
-      <div class="topbarRight" aria-label="Status">
-        <!-- glyph-only status seal (no text) -->
-        <span class="statusSeal" id="statusSeal" aria-label="Status">◉</span>
+      <div class="brandPlate">
+        <div class="brandTitle">MANIC MUSINGS</div>
+        <div class="brandSub">TELL NO LIES</div>
+      </div>
+
+      <div class="topbarRight">
+        <span class="statusPill" id="statusPill" aria-live="polite">READY</span>
       </div>
     </header>
 
@@ -108,161 +122,203 @@
 
       <!-- VIEW: TODAY -->
       <section class="view card" id="view-today">
-        <!-- Day / Date / Time pills (no labels) -->
-        <div class="pillsRow" aria-label="Timestamp">
-          <span class="pill" id="pillDay" aria-label="Day">◈</span>
-          <span class="pill" id="pillDate" aria-label="Date">◈</span>
-          <span class="pill" id="pillTime" aria-label="Time">◈</span>
+        <div class="pageHeader">
+          <div class="pageTitle">TODAY</div>
+
+          <!-- Date chips (IDs reserved for later JS; safe if unused) -->
+          <div class="dateChips" aria-hidden="true">
+            <div class="chip" id="chipDay">SATURDAY</div>
+            <div class="chip" id="chipDate">JAN 3, 2026</div>
+            <div class="chip" id="chipTime">11:21 AM</div>
+          </div>
         </div>
 
-        <!-- ZONE 1 -->
-        <section class="zone" aria-label="Assessment">
+        <!-- Hidden-but-present date field to keep JS compatibility -->
+        <input type="date" id="entryDate" class="srOnly" tabindex="-1" aria-hidden="true" />
+
+        <!-- ========== THE ASSESSMENT ========== -->
+        <section class="zone">
           <div class="zoneHead">
-            <h2 class="zoneTitle">THE ASSESSMENT</h2>
-            <span class="floatTools" aria-label="Tools">
-              <button type="button" class="glyphBtn" data-act="float" aria-label="Float/Dock">✧</button>
-              <button type="button" class="glyphBtn" data-act="pin" aria-label="Pin">⌂</button>
-              <button type="button" class="glyphBtn" data-act="spark" aria-label="Spark">✺</button>
+            <div class="zoneTitle">THE ASSESSMENT</div>
+
+            <!-- Float tools (glyph-only) -->
+            <div class="floatTools" aria-label="Floating tools">
+              <button type="button" class="glyphBtn" data-act="float" aria-label="Float / Dock">✧</button>
+              <button type="button" class="glyphBtn" data-act="pin" aria-label="Pin / Unpin">⌂</button>
+              <button type="button" class="glyphBtn" data-act="spark" aria-label="Sparkle">✺</button>
               <button type="button" class="glyphBtn" data-act="reset" aria-label="Reset">↺</button>
-            </span>
+            </div>
           </div>
 
-          <div class="assessmentCard">
-            <div class="titleLine">
-              <label class="sr-only" for="entryTitle">Title</label>
-              <input id="entryTitle" type="text" class="titleInput" autocomplete="off" />
+          <!-- Title (centered, dominant) -->
+          <div class="titleRow">
+            <label class="srOnly" for="entryTitle">TITLE</label>
+            <input type="text" id="entryTitle" class="titleInput" placeholder="TITLE" />
+          </div>
+
+          <div class="grid2">
+            <div class="field">
+              <label>LOCATION</label>
+              <input type="text" id="entryLocation" placeholder="—" />
             </div>
 
-            <div class="grid2">
-              <div class="field">
-                <label class="sr-only" for="entryLocation">Location</label>
-                <input id="entryLocation" type="text" autocomplete="off" />
-              </div>
-              <div class="field">
-                <label class="sr-only" for="entryIntent">Intent</label>
-                <input id="entryIntent" type="text" autocomplete="off" />
-              </div>
+            <div class="field">
+              <label>INTENT / FOCUS</label>
+              <input type="text" id="entryIntent" placeholder="—" />
+            </div>
+          </div>
+
+          <div class="grid2">
+            <div class="field">
+              <label>MOOD</label>
+              <select id="entryMood">
+                <option value="">—</option>
+                <option>SOFT</option>
+                <option>LOCKED IN</option>
+                <option>CHAOTIC GOOD</option>
+                <option>UNBOTHERED</option>
+                <option>SPICY</option>
+              </select>
             </div>
 
-            <div class="grid3">
-              <div class="field">
-                <label class="sr-only" for="entryMood">Mood</label>
-                <select id="entryMood">
-                  <option value=""></option>
-                  <option>SOFT</option>
-                  <option>LOCKED IN</option>
-                  <option>CHAOTIC GOOD</option>
-                  <option>UNBOTHERED</option>
-                  <option>SPICY</option>
-                </select>
-              </div>
-              <div class="field">
-                <label class="sr-only" for="entryEra">Era</label>
-                <select id="entryEra">
-                  <option value=""></option>
-                  <option>GLOW-UP</option>
-                  <option>VILLAIN ARC</option>
-                  <option>ROM-COM</option>
-                  <option>WIZARD ERA</option>
-                </select>
-              </div>
-              <div class="field">
-                <label class="sr-only" for="entrySingle">Singleness</label>
-                <select id="entrySingle">
-                  <option value=""></option>
-                  <option>BOOKED</option>
-                  <option>BROWSING</option>
-                  <option>UNCLAIMED TREASURE</option>
-                  <option>DO NOT APPROACH</option>
-                </select>
-              </div>
+            <div class="field">
+              <label>WORD OF THE DAY</label>
+              <input type="text" id="entryWord" placeholder="—" />
+            </div>
+          </div>
+
+          <div class="grid2">
+            <div class="field">
+              <label>ERA</label>
+              <select id="entryEra">
+                <option value="">—</option>
+                <option>GLOW-UP</option>
+                <option>VILLAIN ARC</option>
+                <option>ROM-COM</option>
+                <option>WIZARD ERA</option>
+              </select>
             </div>
 
-            <div class="grid2">
-              <div class="field">
-                <label class="sr-only" for="entryWord">Word</label>
-                <input id="entryWord" type="text" autocomplete="off" />
+            <div class="field">
+              <label>SINGLENESS LEVEL</label>
+              <select id="entrySingle">
+                <option value="">—</option>
+                <option>BOOKED</option>
+                <option>BROWSING</option>
+                <option>UNCLAIMED TREASURE</option>
+                <option>DO NOT APPROACH</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========== THE CONTEXT & THE PROOF ========== -->
+        <section class="zone">
+          <div class="zoneHead">
+            <div class="zoneTitle">THE CONTEXT &amp; THE PROOF</div>
+            <div class="floatTools" aria-label="Floating tools">
+              <button type="button" class="glyphBtn" data-act="float" aria-label="Float / Dock">✧</button>
+              <button type="button" class="glyphBtn" data-act="pin" aria-label="Pin / Unpin">⌂</button>
+              <button type="button" class="glyphBtn" data-act="spark" aria-label="Sparkle">✺</button>
+              <button type="button" class="glyphBtn" data-act="reset" aria-label="Reset">↺</button>
+            </div>
+          </div>
+
+          <!-- Moments list (static now; will become dynamic later) -->
+          <div class="moments">
+            <button class="addMomentBtn" type="button" id="addMomentBtn" aria-label="Add moment">＋</button>
+
+            <div class="momentCard">
+              <div class="grid3">
+                <div class="field">
+                  <label>WHAT KIND OF MOMENT</label>
+                  <select class="momentType" aria-label="Moment type">
+                    <option value="">—</option>
+                    <option>WOW</option>
+                    <option>WTF</option>
+                    <option>PLOT TWIST</option>
+                  </select>
+                </div>
+
+                <div class="field span2">
+                  <label>DESCRIBE THE MOMENT</label>
+                  <textarea class="momentDesc" rows="3" placeholder="—"></textarea>
+                </div>
               </div>
-              <div class="field">
-                <label class="sr-only" for="entryDayTag">Day</label>
-                <input id="entryDayTag" type="text" autocomplete="off" />
+
+              <div class="field fileField">
+                <label>UPLOAD PROOF</label>
+                <input class="momentProof" type="file" accept="image/*" />
               </div>
             </div>
           </div>
         </section>
 
-        <!-- ZONE 2 -->
-        <section class="zone" aria-label="Context and Proof">
+        <!-- ========== THE SUMMATION ========== -->
+        <section class="zone">
           <div class="zoneHead">
-            <h2 class="zoneTitle">THE CONTEXT &amp; THE PROOF</h2>
-            <span class="floatTools" aria-label="Tools">
-              <button type="button" class="glyphBtn" data-act="float" aria-label="Float/Dock">✧</button>
-              <button type="button" class="glyphBtn" data-act="pin" aria-label="Pin">⌂</button>
-              <button type="button" class="glyphBtn" data-act="spark" aria-label="Spark">✺</button>
+            <div class="zoneTitle">THE SUMMATION</div>
+            <div class="floatTools" aria-label="Floating tools">
+              <button type="button" class="glyphBtn" data-act="float" aria-label="Float / Dock">✧</button>
+              <button type="button" class="glyphBtn" data-act="pin" aria-label="Pin / Unpin">⌂</button>
+              <button type="button" class="glyphBtn" data-act="spark" aria-label="Sparkle">✺</button>
               <button type="button" class="glyphBtn" data-act="reset" aria-label="Reset">↺</button>
-            </span>
+            </div>
           </div>
 
-          <div class="momentsWrap" id="momentsWrap">
-            <button type="button" class="addMomentBtn" id="addMomentBtn" aria-label="Add moment">＋</button>
-            <div class="momentsList" id="momentsList"></div>
+          <!-- Keep existing ID for JS compatibility (this is your "writer" field) -->
+          <div class="field">
+            <label class="srOnly" for="entryConfession">SUMMATION</label>
+            <textarea id="entryConfession" class="writerBox" rows="10" placeholder="The thing is…"></textarea>
+          </div>
+
+          <!-- Save = glyph seal only -->
+          <div class="actions">
+            <button class="sealBtn" id="saveEntryBtn" type="button" aria-label="Seal entry">
+              <span class="sealRing" aria-hidden="true"></span>
+              <span class="sealGlyph" aria-hidden="true">✦</span>
+            </button>
+            <span class="saveState" id="saveState">—</span>
           </div>
         </section>
 
-        <!-- ZONE 3 -->
-        <section class="zone" aria-label="Summation">
-          <div class="zoneHead">
-            <h2 class="zoneTitle">THE SUMMATION</h2>
-            <span class="floatTools" aria-label="Tools">
-              <button type="button" class="glyphBtn" data-act="float" aria-label="Float/Dock">✧</button>
-              <button type="button" class="glyphBtn" data-act="pin" aria-label="Pin">⌂</button>
-              <button type="button" class="glyphBtn" data-act="spark" aria-label="Spark">✺</button>
-              <button type="button" class="glyphBtn" data-act="reset" aria-label="Reset">↺</button>
-            </span>
-          </div>
-
-          <div class="writerCard">
-            <div class="leadLine" aria-hidden="true">
-              <span class="leadGlyph">⟡</span>
-              <span class="leadGlyph">⟡</span>
-            </div>
-
-            <label class="sr-only" for="entryConfession">Writing</label>
-            <textarea id="entryConfession" rows="10"></textarea>
-
-            <div class="actions">
-              <!-- wax seal save: glyph only -->
-              <button class="sealBtn" id="saveEntryBtn" type="button" aria-label="Save">⟠</button>
-              <span class="saveGlow" id="saveGlow" aria-hidden="true"></span>
-            </div>
-          </div>
-        </section>
-
+        <!-- Keep legacy IDs in DOM (hidden), so nothing breaks if app.js still references them -->
+        <textarea id="entryPlot" class="srOnly" tabindex="-1" aria-hidden="true"></textarea>
+        <textarea id="entryTodos" class="srOnly" tabindex="-1" aria-hidden="true"></textarea>
+        <textarea id="entryCal" class="srOnly" tabindex="-1" aria-hidden="true"></textarea>
       </section>
 
       <!-- VIEW: LIBRARY -->
-      <section class="view card" id="view-library" hidden aria-label="Library">
-        <div class="viewCap" aria-hidden="true">🗄️</div>
+      <section class="view card" id="view-library" hidden>
+        <div class="pageHeader">
+          <div class="pageTitle">LIBRARY</div>
+        </div>
         <div class="list" id="libraryList"></div>
       </section>
 
-      <!-- VIEW: REVIEW -->
-      <section class="view card" id="view-review" hidden aria-label="Review">
-        <div class="viewCap" aria-hidden="true">🜂</div>
+      <!-- VIEW: REVIEW (Year) -->
+      <section class="view card" id="view-review" hidden>
+        <div class="pageHeader">
+          <div class="pageTitle">YEAR</div>
+        </div>
         <div class="bar"><div id="cycleFill"></div></div>
       </section>
 
       <!-- VIEW: ROID BOY -->
-      <section class="view card" id="view-roidboy" hidden aria-label="Roid Boy">
-        <div class="viewCap" aria-hidden="true">🏋️</div>
+      <section class="view card" id="view-roidboy" hidden>
+        <div class="pageHeader">
+          <div class="pageTitle">ROID BOY CHRONICLES</div>
+        </div>
         <div class="actions">
-          <button class="sealBtn" id="roidOpen" type="button" aria-label="Summon">⟠</button>
+          <button class="btn primary" id="roidOpen" type="button" aria-label="Summon Roid Boy">✦</button>
         </div>
       </section>
 
       <!-- VIEW: SETTINGS -->
-      <section class="view card" id="view-settings" hidden aria-label="Settings">
-        <div class="viewCap" aria-hidden="true">⚙︎</div>
+      <section class="view card" id="view-settings" hidden>
+        <div class="pageHeader">
+          <div class="pageTitle">SETTINGS</div>
+        </div>
       </section>
 
     </div>
