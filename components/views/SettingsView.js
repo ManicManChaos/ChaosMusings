@@ -1,0 +1,1 @@
+'use client';import { supabase } from '../../lib/supabaseClient';export default function SettingsView(){return <section><button onClick={()=>supabase.auth.signInWithOAuth({provider:'github',options:{redirectTo:location.origin+'/auth/callback'}})}>GitHub Login</button></section>}

@@ -1,0 +1,1 @@
+export default function YearView(){return <section><h2>YEAR</h2></section>}

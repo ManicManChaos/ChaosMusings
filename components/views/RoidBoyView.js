@@ -1,0 +1,1 @@
+'use client';import { useState } from 'react';export default function RoidBoyView(){const[s,setS]=useState(false);return <section><h2>ROID BOY</h2><button onClick={()=>setS(!s)}>{s?'OPEN':'SEAL'}</button></section>}

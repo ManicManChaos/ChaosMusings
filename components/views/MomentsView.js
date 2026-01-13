@@ -1,0 +1,1 @@
+export default function MomentsView(){return <section><h2>MOMENTS</h2></section>}
