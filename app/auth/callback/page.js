@@ -1,8 +1,3 @@
-"use client";
-import { getSupabase } from "../../../lib/supabaseClient";
-
-export default function Callback() {
-  const supabase = getSupabase();
-  if (supabase) supabase.auth.getSession();
-  return null;
+export default function CallbackPage() {
+  return <div style={{ padding: 16 }}>Auth callback.</div>;
 }
