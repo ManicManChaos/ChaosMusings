@@ -1,8 +1,8 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "Manic Musings of Chaos",
-  themeColor: "#0B0F0D",
+  title: "ChaosMusings",
+  description: "Manic Musings of Chaos",
 };
 
 export default function RootLayout({ children }) {
