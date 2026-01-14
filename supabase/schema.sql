@@ -1,44 +1,12 @@
--- Core day table
-create table if not exists days (
+-- Minimal placeholder schema (safe to run now; extend later)
+
+create extension if not exists "pgcrypto";
+
+create table if not exists daily_entries (
   id uuid primary key default gen_random_uuid(),
-  day_date date not null,
-  assessment jsonb,
-  sealed boolean default false,
-  created_at timestamptz default now()
+  day_key text not null, -- YYYY-MM-DD in America/Chicago
+  created_at timestamptz not null default now(),
+  payload jsonb not null default '{}'::jsonb
 );
 
--- Context entries (WOW/WTF/PLOT TWIST)
-create table if not exists context_entries (
-  id uuid primary key default gen_random_uuid(),
-  day_date date not null,
-  type text,
-  description text,
-  image_url text,
-  created_at timestamptz default now()
-);
-
--- Roid Boy outputs
-create table if not exists roidboy_entries (
-  id uuid primary key default gen_random_uuid(),
-  day_date date not null,
-  data jsonb,
-  created_at timestamptz default now()
-);
-
--- P.S. notes
-create table if not exists ps_entries (
-  id uuid primary key default gen_random_uuid(),
-  day_date date not null,
-  time text,
-  description text,
-  created_at timestamptz default now()
-);
-
--- Summation
-create table if not exists summations (
-  id uuid primary key default gen_random_uuid(),
-  day_date date not null,
-  text text,
-  completed boolean default false,
-  created_at timestamptz default now()
-);
+create index if not exists daily_entries_day_key_idx on daily_entries(day_key);
