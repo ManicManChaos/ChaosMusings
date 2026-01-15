@@ -88,7 +88,9 @@ const manifestPaths = [
 if (manifestPaths.length === 0) fail("No asset paths found in manifest exports.");
 
 for (const p of manifestPaths) {
-  if (!p.startsWith("/")) fail(`Manifest path must start with "/": ${p}`);   
+if (!p.startsWith("/")) {
+  fail(`Manifest path must start with "/": ${p}`);
+}
 if (!path.startsWith("/assets/glyphs/")) {
   throw new Error(`Invalid asset path: ${path}`);
 }
