@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run validate && next build",
     "start": "next start",
     "validate:assets": "node scripts/validate-assets.mjs"
   },
