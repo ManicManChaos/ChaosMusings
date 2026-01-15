@@ -1,0 +1,15 @@
+{
+  "name": "chaosmusings",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "npm run validate:assets && next build",
+    "start": "next start",
+    "validate:assets": "node scripts/validate-assets.mjs"
+  },
+  "dependencies": {
+    "next": "14.2.5",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
+}
