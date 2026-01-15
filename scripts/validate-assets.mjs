@@ -88,8 +88,8 @@ const manifestPaths = [
 if (manifestPaths.length === 0) fail("No asset paths found in manifest exports.");
 
 for (const p of manifestPaths) {
-  if (!p.startsWith("/")) fail(`Manifest path must start with "/": ${p}`);
-  if (!p.startsWith("/icons/")) fail(`Manifest path must live under /icons/: ${p}`);
+  if (!p.startsWith("/")) fail(`Manifest path must start with "/": ${p}`);   
+if (!path.startsWith("/assets/glyphs/")) throw ...
 
   const diskPath = path.join(publicDir, p.replace(/^\//, ""));
   if (!fs.existsSync(diskPath)) {
