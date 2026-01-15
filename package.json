@@ -13,9 +13,3 @@
     "react-dom": "18.2.0"
   }
 }
-{
-  "scripts": {
-    "validate:assets": "node scripts/validate-assets.mjs",
-    "build": "npm run validate:assets && next build"
-  }
-}
