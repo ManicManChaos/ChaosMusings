@@ -1,0 +1,70 @@
+/* Sidebar.module.css — hard-lock icon sizing so SVGs cannot blow up */
+
+.rightRail{
+  position: fixed;
+  right: 0;
+  top: 0;
+  height: 100vh;
+  width: 92px;
+  z-index: 60;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+
+  padding: 18px 10px;
+
+  background: rgba(5,8,6,.70);
+  border-left: 1px solid rgba(217,195,179,.12);
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+}
+
+.railBtn{
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid rgba(217,195,179,.16);
+  background: rgba(0,0,0,.18);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
+
+  padding: 0;
+  cursor: pointer;
+}
+
+.railBtn:active{
+  transform: scale(.98);
+}
+
+.isActive{
+  border-color: rgba(176,141,43,.36);
+  box-shadow:
+    0 0 22px rgba(176,141,43,.12),
+    inset 0 0 0 1px rgba(255,255,255,.06);
+}
+
+/* THIS is the critical lock */
+.railIcon{
+  width: 34px !important;
+  height: 34px !important;
+  display: block !important;
+  object-fit: contain !important;
+}
+
+/* a11y */
+.srOnly{
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
