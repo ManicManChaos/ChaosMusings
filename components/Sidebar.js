@@ -1,5 +1,6 @@
 "use client";
 
+import styles from "./Sidebar.module.css";
 import { ICONS } from "../lib/assets";
 
 const ITEMS = [
@@ -13,16 +14,22 @@ const ITEMS = [
 
 export default function Sidebar({ active, onSelect }) {
   return (
-    <aside className="rightRail" aria-label="Navigation">
+    <aside className={styles.rightRail} aria-label="Navigation">
       {ITEMS.map((it) => (
         <button
           key={it.id}
           type="button"
-          className={`railBtn ${active === it.id ? "isActive" : ""}`}
+          className={`${styles.railBtn} ${active === it.id ? styles.isActive : ""}`}
           onClick={() => onSelect?.(it.id)}
+          aria-label={it.label}
         >
-          <img className="railIcon" src={it.icon} alt="" aria-hidden="true" />
-          <span className="srOnly">{it.label}</span>
+          <img
+            className={styles.railIcon}
+            src={it.icon}
+            alt=""
+            draggable="false"
+          />
+          <span className={styles.srOnly}>{it.label}</span>
         </button>
       ))}
     </aside>
