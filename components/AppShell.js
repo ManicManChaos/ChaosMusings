@@ -4,11 +4,13 @@ import { useMemo, useState } from "react";
 import Sidebar from "./Sidebar";
 import OpeningBook from "./OpeningBook";
 import Weave from "./Weave";
+
+// Views (keep/add as you build them)
 import AssessmentView from "./AssessmentView";
 
 export default function AppShell() {
-  const [active, setActive] = useState("eye"); // eye = today hub
-  const [openingDone, setOpeningDone] = useState(true); // keep TRUE if you want to bypass OpeningBook
+  const [active, setActive] = useState("eye"); // default: Daily Hub / Assessment
+  const [openingDone, setOpeningDone] = useState(false);
   const [weaving, setWeaving] = useState(false);
 
   const nav = useMemo(
@@ -22,6 +24,26 @@ export default function AppShell() {
     []
   );
 
+  // simple router: render only the view for the selected icon
+  const renderView = () => {
+    switch (active) {
+      case "eye":
+        return <AssessmentView />;
+
+      // placeholders so nothing “invents UI” until you wire real views:
+      case "intake":
+      case "moments":
+      case "roid":
+      case "ps":
+      case "summation":
+      case "library":
+      case "directory":
+      case "year":
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="appRoot">
       {!openingDone ? (
@@ -30,18 +52,7 @@ export default function AppShell() {
         <>
           <Sidebar active={active} onSelect={nav} />
 
-          <main className="mainStage">
-            {active === "eye" ? (
-              <AssessmentView />
-            ) : (
-              // Keep other tabs neutral / empty until we restore them next
-              <div className="card">
-                <div className="view">
-                  {/* intentionally minimal */}
-                </div>
-              </div>
-            )}
-          </main>
+          <main className="mainStage">{renderView()}</main>
 
           {weaving ? <Weave /> : null}
         </>
