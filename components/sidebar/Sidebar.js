@@ -1,10 +1,10 @@
 "use client";
 
-import { ICONS } from "@/lib/assets";
+import { ORNATE } from "@/lib/assets";
 
 export default function Sidebar({ active, onSelect }) {
   return (
-    <aside className="sidebar">
+    <aside className="sidebar" aria-label="Primary">
       <div className="sbTop">
         <div className="sbBrand">CHAOSMUSINGS</div>
       </div>
@@ -36,7 +36,7 @@ function GlyphBtn({ id, label, active, onSelect }) {
       }}
       type="button"
     >
-      <img className="sbIcon" src={ICONS[id]} alt="" aria-hidden="true" />
+      <img className="sbIcon" src={ORNATE[id]} alt="" aria-hidden="true" />
       <span className="sbLbl">{label}</span>
     </button>
   );
